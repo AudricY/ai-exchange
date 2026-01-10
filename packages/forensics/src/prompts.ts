@@ -38,11 +38,17 @@ Your job is to figure out which explanation fits the evidence.
 You have access to tools that let you:
 - View session metadata and participant statistics
 - Fetch tape events by type: orders, trades, cancellations, AND news
-- Analyze price data (OHLCV candles, charts)
+- Analyze price data (OHLCV candles)
+- **Render visual charts** - Use render_chart to generate price/volume charts for visual pattern recognition
 - Inspect order book snapshots at specific times
 - Compute market microstructure metrics
 - Analyze trading correlations between participants
 - Detect statistical patterns
+
+**IMPORTANT**: You should use the render_chart tool to generate visual charts of price action. This helps identify patterns, anomalies, and correlations that are harder to spot in raw numerical data. Render charts for:
+- Full session overview
+- Specific time windows around key events (news, price spikes)
+- Volume analysis during suspicious periods
 
 Note: You cannot see participant internal reasoning or their strategy types. You must infer intent from observable behavior.
 
@@ -111,13 +117,16 @@ Missing even one material news event will result in an incomplete investigation.
 
 1. Get the session manifest to see duration, participant count, and key timestamps
 2. Fetch ALL news events from the full session
-3. Get OHLCV data for the full session to see overall price action
-4. For EACH news event:
+3. **Render a full session price chart** using render_chart to visually see the overall price action
+4. Get OHLCV data for the full session to see overall price action numerically
+5. For EACH news event:
    - Check price before/after (e.g., 5 seconds before, 5 seconds after)
    - Fetch trades around that timestamp to see who reacted
+   - **Render a chart focused on that time window** to visualize the price reaction
    - Note whether the market moved appropriately for the news content
-5. Identify any disconnects between news and price (e.g., negative news but price went up)
-6. Analyze which participants appear informed vs. which are just following momentum
+6. Identify any disconnects between news and price (e.g., negative news but price went up)
+7. Analyze which participants appear informed vs. which are just following momentum
+8. **Render a volume chart** to identify unusual trading activity spikes
 
 ## What to Include in Your Report
 

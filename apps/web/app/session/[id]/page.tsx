@@ -13,7 +13,7 @@ import { Chart } from '@/components/Chart';
 import { OrderBook } from '@/components/OrderBook';
 import { TradesFeed } from '@/components/TradesFeed';
 import { ReplayScrubber } from '@/components/ReplayScrubber';
-import { InvestigationPanel, type InvestigationServerStatus, type InvestigationStats } from '@/components/InvestigationPanel';
+import { InvestigationPanel, type InvestigationStats, type Investigation } from '@/components/InvestigationPanel';
 import { type InvestigationStep } from '@/components/investigation/ActivityFeed';
 import { NewsFeed } from '@/components/NewsFeed';
 import { OrderFeed } from '@/components/OrderFeed';
@@ -32,14 +32,16 @@ export default function SessionPage({
   const [ohlcv, setOhlcv] = useState<OHLCVBar[]>([]);
   const [events, setEvents] = useState<TapeEvent[]>([]);
   const [snapshot, setSnapshot] = useState<OrderBookSnapshot | null>(null);
-  const [report, setReport] = useState<ForensicsReport | null>(null);
+
+  // Investigation state - now supports multiple
+  const [investigations, setInvestigations] = useState<Investigation[]>([]);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [runningInvestigations, setRunningInvestigations] = useState<Array<{ id: string; startedAt: string }>>([]);
 
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [investigating, setInvestigating] = useState(false);
   const [investigationSteps, setInvestigationSteps] = useState<InvestigationStep[]>([]);
-  const [serverStatus, setServerStatus] = useState<InvestigationServerStatus>('idle');
-  const [serverStartedAt, setServerStartedAt] = useState<string | null>(null);
   const [investigationStats, setInvestigationStats] = useState<InvestigationStats | null>(null);
 
   const [currentTime, setCurrentTime] = useState(0);
@@ -64,26 +66,26 @@ export default function SessionPage({
       fetchOHLCV();
       fetchEvents();
       fetchLatestSnapshot();
-      fetchInvestigationStatus();
+      fetchInvestigations();
     }
   }, [session?.status]);
 
-  // Fetch existing report and investigation status
-  async function fetchInvestigationStatus() {
+  // Fetch investigations for this session
+  async function fetchInvestigations() {
     try {
       const res = await fetch(`/api/sessions/${id}/investigate`);
       if (res.ok) {
         const data = await res.json();
-        if (data.report) {
-          setReport(data.report);
-        }
-        if (data.status) {
-          setServerStatus(data.status);
-          setServerStartedAt(data.startedAt ?? null);
+        setInvestigations(data.reports || []);
+        setRunningInvestigations(data.runningInvestigations || []);
+
+        // Auto-select latest if none selected
+        if (!selectedReportId && data.reports?.length > 0) {
+          setSelectedReportId(data.reports[0].id);
         }
       }
     } catch {
-      // Silently fail - status just won't be fetched
+      // Silently fail
     }
   }
 
@@ -183,35 +185,18 @@ export default function SessionPage({
   const startInvestigation = useCallback(async () => {
     setInvestigating(true);
     setInvestigationSteps([]);
-    setServerStatus('running');
+    setInvestigationStats(null);
 
     try {
       const res = await fetch(`/api/sessions/${id}/investigate`, {
         method: 'POST',
       });
 
-      // Check for JSON response (cached report or already_running)
-      const contentType = res.headers.get('content-type');
-      if (contentType?.includes('application/json')) {
-        const data = await res.json();
-        if (data.status === 'already_running') {
-          setServerStatus('running');
-          setServerStartedAt(data.startedAt);
-          setInvestigating(false);
-          return;
-        }
-        if (data.report) {
-          setReport(data.report);
-          setServerStatus('completed');
-          setInvestigating(false);
-          return;
-        }
-      }
-
       if (!res.body) throw new Error('No response body');
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
+      let newInvestigationId: string | null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -223,15 +208,24 @@ export default function SessionPage({
         for (const line of lines) {
           try {
             const data = JSON.parse(line.slice(6));
-            if (data.type === 'report') {
-              setReport(data.report);
-              setServerStatus('completed');
+
+            if (data.type === 'started') {
+              newInvestigationId = data.investigationId;
+            } else if (data.type === 'report') {
+              // Add new report to list and select it
+              const newInvestigation: Investigation = {
+                id: data.investigationId,
+                title: `Investigation ${new Date().toLocaleString()}`,
+                report: data.report,
+                generatedAt: new Date().toISOString(),
+              };
+              setInvestigations((prev) => [newInvestigation, ...prev]);
+              setSelectedReportId(data.investigationId);
             } else if (data.type === 'stats') {
               setInvestigationStats(data.stats);
             } else if (data.type === 'error') {
-              setServerStatus('failed');
+              console.error('Investigation error:', data.content);
             } else if (data.type === 'tool_call' || data.type === 'tool_result' || data.type === 'thinking') {
-              // New step format - pass through directly
               setInvestigationSteps((prev) => [...prev, data as InvestigationStep]);
             }
           } catch {
@@ -241,7 +235,6 @@ export default function SessionPage({
       }
     } catch (error) {
       console.error('Investigation failed:', error);
-      setServerStatus('failed');
     } finally {
       setInvestigating(false);
     }
@@ -268,6 +261,7 @@ export default function SessionPage({
 
   const duration = session.config?.durationMs || 60000;
   const visibleEvents = events.filter((e) => e.timestamp <= currentTime);
+  const hasRunningInvestigation = runningInvestigations.length > 0;
 
   return (
     <div className="space-y-6">
@@ -308,7 +302,9 @@ export default function SessionPage({
             <TabsTrigger value="simulation">Simulation</TabsTrigger>
             <TabsTrigger value="investigation">
               Investigation
-              {report && <span className="ml-1.5 h-2 w-2 rounded-full bg-purple-500" />}
+              {investigations.length > 0 && (
+                <span className="ml-1.5 h-2 w-2 rounded-full bg-purple-500" />
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -362,12 +358,13 @@ export default function SessionPage({
           <TabsContent value="investigation" className="mt-0">
             <InvestigationPanel
               sessionId={id}
-              report={report}
+              investigations={investigations}
+              selectedReportId={selectedReportId}
+              onSelectReport={setSelectedReportId}
               isInvestigating={investigating}
               steps={investigationSteps}
               onStartInvestigation={startInvestigation}
-              serverStatus={serverStatus}
-              startedAt={serverStartedAt}
+              hasRunningInvestigation={hasRunningInvestigation}
               stats={investigationStats}
             />
           </TabsContent>

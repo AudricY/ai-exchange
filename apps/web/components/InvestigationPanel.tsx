@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import type { ForensicsReport } from '@ai-exchange/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ActivityFeed, type InvestigationStep } from './investigation/ActivityFeed';
-
-export type InvestigationServerStatus = 'idle' | 'running' | 'completed' | 'failed';
+import { InvestigationSelector } from './InvestigationSelector';
 
 export interface InvestigationStats {
   stepCount: number;
@@ -21,31 +19,39 @@ export interface InvestigationStats {
   };
 }
 
+export interface Investigation {
+  id: string;
+  title: string;
+  report: ForensicsReport;
+  generatedAt: string;
+}
+
 interface InvestigationPanelProps {
   sessionId: string;
-  report: ForensicsReport | null;
+  investigations: Investigation[];
+  selectedReportId: string | null;
+  onSelectReport: (id: string) => void;
   isInvestigating: boolean;
   steps: InvestigationStep[];
   onStartInvestigation: () => void;
-  serverStatus?: InvestigationServerStatus;
-  startedAt?: string | null;
+  hasRunningInvestigation: boolean;
   stats?: InvestigationStats | null;
 }
 
 export function InvestigationPanel({
   sessionId,
-  report,
+  investigations,
+  selectedReportId,
+  onSelectReport,
   isInvestigating,
   steps,
   onStartInvestigation,
-  serverStatus = 'idle',
-  startedAt,
+  hasRunningInvestigation,
   stats,
 }: InvestigationPanelProps) {
   const [activeTab, setActiveTab] = useState<'activity' | 'report'>('activity');
 
-  // Determine if investigation is running elsewhere (server says running but we're not the one running it)
-  const runningElsewhere = serverStatus === 'running' && !isInvestigating;
+  const selectedReport = investigations.find((i) => i.id === selectedReportId)?.report ?? null;
 
   // Calculate stats for display
   const toolCallCount = steps.filter((s) => s.type === 'tool_call').length;
@@ -59,11 +65,27 @@ export function InvestigationPanel({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             Forensic Investigation
-            {(isInvestigating || runningElsewhere) && (
+            {(isInvestigating || hasRunningInvestigation) && (
               <div className="animate-spin h-4 w-4 border-2 border-purple-400 border-t-transparent rounded-full" />
             )}
           </CardTitle>
-          {(report || steps.length > 0) && (
+        </div>
+
+        {/* Investigation Selector */}
+        <div className="mt-3">
+          <InvestigationSelector
+            investigations={investigations}
+            selectedId={selectedReportId}
+            onSelect={onSelectReport}
+            onStartNew={onStartInvestigation}
+            isStartingNew={isInvestigating}
+            hasRunning={hasRunningInvestigation}
+          />
+        </div>
+
+        {/* Activity/Report tabs - only show when there's content */}
+        {(selectedReport || steps.length > 0) && (
+          <div className="mt-3">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'activity' | 'report')}>
               <TabsList className="h-8">
                 <TabsTrigger value="activity" className="text-xs px-3">
@@ -74,14 +96,14 @@ export function InvestigationPanel({
                     </Badge>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="report" className="text-xs px-3" disabled={!report}>
+                <TabsTrigger value="report" className="text-xs px-3" disabled={!selectedReport}>
                   Report
-                  {report && <span className="ml-1.5 h-2 w-2 rounded-full bg-green-500 inline-block" />}
+                  {selectedReport && <span className="ml-1.5 h-2 w-2 rounded-full bg-green-500 inline-block" />}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-          )}
-        </div>
+          </div>
+        )}
 
         {isInvestigating && uniqueTools.size > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
@@ -129,36 +151,22 @@ export function InvestigationPanel({
       </CardHeader>
 
       <CardContent className="flex-1 min-h-0">
-        {!report && !isInvestigating && steps.length === 0 && !runningElsewhere && (
+        {investigations.length === 0 && !isInvestigating && !hasRunningInvestigation && (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">
               Run the Gemini forensics agent to analyze this market session.
             </p>
-            <Button
-              onClick={onStartInvestigation}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              Start Investigation
-            </Button>
           </div>
         )}
 
-        {runningElsewhere && (
+        {hasRunningInvestigation && !isInvestigating && (
           <div className="text-center py-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <div className="animate-spin h-5 w-5 border-2 border-purple-400 border-t-transparent rounded-full" />
               <span className="text-purple-400 font-medium">Investigation in Progress</span>
             </div>
-            <p className="text-muted-foreground text-sm mb-2">
-              An investigation is already running for this session.
-            </p>
-            {startedAt && (
-              <p className="text-muted-foreground text-xs">
-                Started at {new Date(startedAt).toLocaleTimeString()}
-              </p>
-            )}
-            <p className="text-muted-foreground text-xs mt-4">
-              Refresh the page to check for updates.
+            <p className="text-muted-foreground text-sm">
+              An investigation is running in another tab/window.
             </p>
           </div>
         )}
@@ -167,8 +175,8 @@ export function InvestigationPanel({
           <ActivityFeed steps={steps} autoScroll={isInvestigating} />
         )}
 
-        {report && activeTab === 'report' && (
-          <ReportView report={report} />
+        {selectedReport && activeTab === 'report' && (
+          <ReportView report={selectedReport} />
         )}
       </CardContent>
     </Card>

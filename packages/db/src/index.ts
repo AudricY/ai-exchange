@@ -21,11 +21,14 @@ export { insertOHLCV, getOHLCV } from './ohlcv.js';
 export { insertSnapshot, getSnapshots, getSnapshotAt } from './snapshots.js';
 
 export {
+  generateInvestigationId,
   saveReport,
   getReport,
+  getSessionReports,
   listReports,
   getReportStatuses,
   setInvestigationStatus,
   getInvestigationStatus,
+  getRunningInvestigations,
   type InvestigationStatus,
 } from './reports.js';

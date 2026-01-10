@@ -25,9 +25,6 @@ export default function RootLayout({
             <Link href="/" className="text-sm hover:text-foreground text-muted-foreground">
               Sessions
             </Link>
-            <Link href="/investigations" className="text-sm hover:text-foreground text-muted-foreground">
-              Investigations
-            </Link>
           </div>
         </nav>
         <main className="p-6">{children}</main>

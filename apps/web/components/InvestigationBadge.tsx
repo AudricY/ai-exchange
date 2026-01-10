@@ -1,18 +1,17 @@
 import { Badge } from '@/components/ui/badge';
 
-type InvestigationStatus = 'idle' | 'running' | 'completed' | 'failed';
-
 interface InvestigationBadgeProps {
-  status: InvestigationStatus;
-  generatedAt?: string;
+  count: number;
+  isRunning: boolean;
+  latestAt?: string;
 }
 
-export function InvestigationBadge({ status, generatedAt }: InvestigationBadgeProps) {
-  if (status === 'idle') {
+export function InvestigationBadge({ count, isRunning, latestAt }: InvestigationBadgeProps) {
+  if (count === 0 && !isRunning) {
     return null;
   }
 
-  if (status === 'running') {
+  if (isRunning) {
     return (
       <Badge variant="outline" className="border-yellow-500 text-yellow-400" title="Investigation in progress">
         <span className="inline-block animate-pulse mr-1">●</span>
@@ -21,22 +20,13 @@ export function InvestigationBadge({ status, generatedAt }: InvestigationBadgePr
     );
   }
 
-  if (status === 'failed') {
-    return (
-      <Badge variant="outline" className="border-red-500 text-red-400" title="Investigation failed">
-        Failed
-      </Badge>
-    );
-  }
-
-  // completed
-  const title = generatedAt
-    ? `Investigated on ${new Date(generatedAt).toLocaleString()}`
-    : 'Investigated';
+  const title = latestAt
+    ? `${count} investigation${count > 1 ? 's' : ''} - Latest: ${new Date(latestAt).toLocaleString()}`
+    : `${count} investigation${count > 1 ? 's' : ''}`;
 
   return (
     <Badge variant="outline" className="border-purple-500 text-purple-400" title={title}>
-      Investigated
+      {count} Investigation{count > 1 ? 's' : ''}
     </Badge>
   );
 }

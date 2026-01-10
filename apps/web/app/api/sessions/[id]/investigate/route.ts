@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import {
   getSession,
-  getReport,
-  getInvestigationStatus,
+  getSessionReports,
+  getRunningInvestigations,
   setInvestigationStatus,
+  generateInvestigationId,
 } from '@ai-exchange/db';
 import { investigate, type InvestigationStep } from '@ai-exchange/forensics';
 
@@ -26,30 +27,24 @@ export async function POST(
       );
     }
 
-    // Check if report already exists
-    const existingReport = getReport(id);
-    if (existingReport) {
-      return NextResponse.json({ report: existingReport });
-    }
-
-    // Check if investigation is already running (lock mechanism)
-    const currentStatus = getInvestigationStatus(id);
-    if (currentStatus?.status === 'running') {
-      return NextResponse.json({
-        status: 'already_running',
-        startedAt: currentStatus.startedAt,
-      });
-    }
+    // Generate new investigation ID (allows multiple investigations per session)
+    const investigationId = generateInvestigationId(id);
 
     // Set status to running before starting
-    setInvestigationStatus(id, 'running');
+    setInvestigationStatus(investigationId, id, 'running');
 
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          // Send investigation ID first so client knows which investigation this is
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'started', investigationId })}\n\n`)
+          );
+
           const result = await investigate({
             sessionId: id,
+            investigationId,
             onStep: (step: InvestigationStep) => {
               let stepData: unknown = step;
 
@@ -92,10 +87,14 @@ export async function POST(
           });
 
           // Set status to completed
-          setInvestigationStatus(id, 'completed');
+          setInvestigationStatus(investigationId, id, 'completed');
 
           if (result.report) {
-            const data = JSON.stringify({ type: 'report', report: result.report });
+            const data = JSON.stringify({
+              type: 'report',
+              investigationId,
+              report: result.report,
+            });
             controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           }
 
@@ -112,7 +111,7 @@ export async function POST(
         } catch (error) {
           console.error('Investigation error:', error);
           // Set status to failed
-          setInvestigationStatus(id, 'failed');
+          setInvestigationStatus(investigationId, id, 'failed');
           const data = JSON.stringify({
             type: 'error',
             content: 'Investigation failed',
@@ -147,30 +146,17 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const report = getReport(id);
-    const statusInfo = getInvestigationStatus(id);
-    const status = statusInfo?.status ?? 'idle';
+    const reports = getSessionReports(id);
+    const runningInvestigations = getRunningInvestigations(id);
 
-    if (report) {
-      return NextResponse.json({ report, status: 'completed' });
-    }
-
-    if (status === 'running') {
-      return NextResponse.json({
-        status: 'running',
-        startedAt: statusInfo?.startedAt,
-      });
-    }
-
-    if (status === 'failed') {
-      return NextResponse.json({ status: 'failed' });
-    }
-
-    return NextResponse.json({ status: 'idle' });
+    return NextResponse.json({
+      reports,
+      runningInvestigations,
+    });
   } catch (error) {
-    console.error('Failed to get report:', error);
+    console.error('Failed to get investigations:', error);
     return NextResponse.json(
-      { error: 'Failed to get report' },
+      { error: 'Failed to get investigations' },
       { status: 500 }
     );
   }

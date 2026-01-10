@@ -78,22 +78,28 @@ CREATE TABLE IF NOT EXISTS doc_chunks (
   FOREIGN KEY (doc_id) REFERENCES documents(id)
 );
 
--- Reports
+-- Reports (multiple per session)
 CREATE TABLE IF NOT EXISTS reports (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  session_id TEXT NOT NULL UNIQUE,
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL,
+  title TEXT NOT NULL DEFAULT 'Investigation',
   report TEXT NOT NULL,
   generated_at TEXT NOT NULL,
   FOREIGN KEY (session_id) REFERENCES sessions(id)
 );
 
--- Investigation status tracking
+CREATE INDEX IF NOT EXISTS idx_reports_session ON reports(session_id);
+
+-- Investigation status tracking (by investigation id)
 CREATE TABLE IF NOT EXISTS investigation_status (
-  session_id TEXT PRIMARY KEY,
-  status TEXT NOT NULL DEFAULT 'idle',
-  started_at TEXT,
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'running',
+  started_at TEXT NOT NULL,
   FOREIGN KEY (session_id) REFERENCES sessions(id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_investigation_status_session ON investigation_status(session_id);
 `;
 
 export function getDb(dbPath?: string): Database.Database {

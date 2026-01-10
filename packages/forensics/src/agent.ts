@@ -43,6 +43,7 @@ export interface InvestigationResult {
 
 export interface InvestigateOptions {
   sessionId: string;
+  investigationId: string;
   onStep?: (step: InvestigationStep) => void;
   maxSteps?: number;  // Default: 100
 }
@@ -72,14 +73,15 @@ export async function investigate(
 ): Promise<InvestigationResult> {
   const {
     sessionId,
+    investigationId,
     onStep,
     maxSteps = 100,
   } = options;
 
   const startTime = Date.now();
 
-  // Create session-scoped tools (sessionId is bound via closure)
-  const tools = createSessionTools(sessionId);
+  // Create session-scoped tools (sessionId and investigationId are bound via closure)
+  const tools = createSessionTools(sessionId, investigationId);
 
   try {
     const result = await generateText({
@@ -153,10 +155,10 @@ export async function investigate(
 export async function investigateStream(
   options: InvestigateOptions
 ): Promise<AsyncIterable<InvestigationStep>> {
-  const { sessionId, maxSteps = 100 } = options;
+  const { sessionId, investigationId, maxSteps = 100 } = options;
 
-  // Create session-scoped tools (sessionId is bound via closure)
-  const tools = createSessionTools(sessionId);
+  // Create session-scoped tools (sessionId and investigationId are bound via closure)
+  const tools = createSessionTools(sessionId, investigationId);
 
   const result = streamText({
     model: google('gemini-3-flash-preview'),

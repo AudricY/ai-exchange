@@ -6,6 +6,7 @@ import {
   fetchTapeEvents,
   getOHLCV,
   getSnapshots as getBookSnapshotsDb,
+  saveReport,
 } from '@ai-exchange/db';
 import type {
   SessionManifest,
@@ -85,7 +86,7 @@ function anonymizeDeep<T>(obj: T, anonymize: (id: string) => string): T {
  * IMPORTANT: Agent identities are anonymized to prevent the forensics agent
  * from knowing agent types upfront. It must infer behavior from observable data.
  */
-export function createSessionTools(sessionId: string) {
+export function createSessionTools(sessionId: string, investigationId: string) {
   // Verify session exists upfront
   const session = getSession(sessionId);
   if (!session) {
@@ -356,7 +357,7 @@ export function createSessionTools(sessionId: string) {
     }),
 
     render_chart: tool({
-      description: 'Render a price chart for visual analysis. Returns base64 PNG image that can be analyzed visually.',
+      description: 'Render a price chart for visual analysis. Returns a PNG image that you can analyze visually to identify patterns, trends, and anomalies.',
       inputSchema: z.object({
         startTime: z.number().optional().describe('Start timestamp'),
         endTime: z.number().optional().describe('End timestamp'),
@@ -367,9 +368,54 @@ export function createSessionTools(sessionId: string) {
       }),
       execute: async ({ startTime, endTime, resolution, chartType, width, height }) => {
         try {
-          const bars = getOHLCV(sessionId, resolution, startTime, endTime);
-          if (bars.length === 0) {
-            return { error: 'No OHLCV data available for chart', image: null };
+          // Always fetch from base 1000ms resolution and aggregate if needed
+          const baseBars = getOHLCV(sessionId, 1000, startTime, endTime);
+          if (baseBars.length === 0) {
+            return { error: 'No OHLCV data available for chart', imageBuffer: null };
+          }
+
+          // Aggregate bars to requested resolution if needed
+          let bars = baseBars;
+          if (resolution > 1000) {
+            const aggregatedBars: typeof baseBars = [];
+            let currentBucket: typeof baseBars = [];
+            let bucketStart = Math.floor(baseBars[0].intervalStart / resolution) * resolution;
+
+            for (const bar of baseBars) {
+              const barBucket = Math.floor(bar.intervalStart / resolution) * resolution;
+
+              if (barBucket !== bucketStart && currentBucket.length > 0) {
+                aggregatedBars.push({
+                  sessionId: currentBucket[0].sessionId,
+                  intervalStart: bucketStart,
+                  resolution: resolution,
+                  open: currentBucket[0].open,
+                  high: Math.max(...currentBucket.map(b => b.high)),
+                  low: Math.min(...currentBucket.map(b => b.low)),
+                  close: currentBucket[currentBucket.length - 1].close,
+                  volume: currentBucket.reduce((sum, b) => sum + b.volume, 0),
+                  tradeCount: currentBucket.reduce((sum, b) => sum + b.tradeCount, 0),
+                });
+                currentBucket = [];
+                bucketStart = barBucket;
+              }
+              currentBucket.push(bar);
+            }
+
+            if (currentBucket.length > 0) {
+              aggregatedBars.push({
+                sessionId: currentBucket[0].sessionId,
+                intervalStart: bucketStart,
+                resolution: resolution,
+                open: currentBucket[0].open,
+                high: Math.max(...currentBucket.map(b => b.high)),
+                low: Math.min(...currentBucket.map(b => b.low)),
+                close: currentBucket[currentBucket.length - 1].close,
+                volume: currentBucket.reduce((sum, b) => sum + b.volume, 0),
+                tradeCount: currentBucket.reduce((sum, b) => sum + b.tradeCount, 0),
+              });
+            }
+            bars = aggregatedBars;
           }
 
           // Create canvas using @napi-rs/canvas (no Cairo dependency)
@@ -495,8 +541,7 @@ export function createSessionTools(sessionId: string) {
           const buffer = canvas.toBuffer('image/png');
 
           return {
-            image: buffer.toString('base64'),
-            mimeType: 'image/png',
+            imageBuffer: buffer,
             barCount: bars.length,
             priceRange: {
               low: Math.min(...bars.map(b => b.low)),
@@ -507,10 +552,31 @@ export function createSessionTools(sessionId: string) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           return {
             error: `Chart rendering failed: ${errorMessage}`,
-            image: null,
+            imageBuffer: null,
             suggestion: 'Use get_ohlcv tool for raw price data instead',
           };
         }
+      },
+      // Convert tool result to multimodal content so the model can "see" the chart
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      toModelOutput: ({ output }: { output: any }) => {
+        if (!output.imageBuffer) {
+          return { type: 'text' as const, value: JSON.stringify({ error: output.error, suggestion: output.suggestion }) };
+        }
+        return {
+          type: 'content' as const,
+          value: [
+            {
+              type: 'text' as const,
+              text: `Chart rendered: ${output.barCount} bars, price range $${output.priceRange.low.toFixed(2)} - $${output.priceRange.high.toFixed(2)}`,
+            },
+            {
+              type: 'media' as const,
+              data: output.imageBuffer.toString('base64'),
+              mediaType: 'image/png' as const,
+            },
+          ],
+        };
       },
     }),
 
@@ -719,6 +785,8 @@ export function createSessionTools(sessionId: string) {
           generatedAt: new Date().toISOString(),
           ...reportData,
         };
+        // Save report to database with investigation ID
+        saveReport(investigationId, sessionId, report);
         return { success: true, report };
       },
     }),

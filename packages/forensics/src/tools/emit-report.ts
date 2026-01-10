@@ -1,6 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { saveReport } from '@ai-exchange/db';
+import { saveReport, generateInvestigationId } from '@ai-exchange/db';
 import type { ForensicsReport } from '@ai-exchange/types';
 
 const EvidenceRefSchema = z.object({
@@ -87,7 +87,8 @@ export const emitReport = tool({
       conclusion,
     };
 
-    saveReport(sessionId, report);
+    const investigationId = generateInvestigationId(sessionId);
+    saveReport(investigationId, sessionId, report);
 
     return { success: true, report };
   },

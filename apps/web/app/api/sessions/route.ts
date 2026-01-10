@@ -69,9 +69,9 @@ export async function GET() {
       const reportInfo = reportStatuses.get(session.id);
       return {
         ...session,
-        hasReport: !!reportInfo?.generatedAt,
-        reportGeneratedAt: reportInfo?.generatedAt,
-        investigationStatus: reportInfo?.status ?? 'idle',
+        investigationCount: reportInfo?.count ?? 0,
+        latestInvestigationAt: reportInfo?.latestGeneratedAt,
+        hasRunningInvestigation: reportInfo?.hasRunning ?? false,
       };
     });
 

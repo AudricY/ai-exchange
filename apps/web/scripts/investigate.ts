@@ -6,7 +6,7 @@
 
 import 'dotenv/config';
 import { investigate, type InvestigationStep, type InvestigationResult } from '@ai-exchange/forensics';
-import { getSession, closeDb } from '@ai-exchange/db';
+import { getSession, closeDb, generateInvestigationId, setInvestigationStatus } from '@ai-exchange/db';
 import { mkdirSync, appendFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
@@ -101,9 +101,14 @@ async function main() {
   const startTime = Date.now();
   const steps: Array<{ step: number; timestamp: number; type: string; name?: string; content: string }> = [];
 
+  // Generate investigation ID for CLI usage
+  const investigationId = generateInvestigationId(sessionId);
+  setInvestigationStatus(investigationId, sessionId, 'running');
+
   try {
     const result: InvestigationResult = await investigate({
       sessionId,
+      investigationId,
       maxSteps: maxSteps || 100,
       onStep: (step: InvestigationStep) => {
         stepCount++;
@@ -221,9 +226,13 @@ async function main() {
 
     log(`\nLog file saved: ${logFile}`);
 
+    // Mark investigation as completed
+    setInvestigationStatus(investigationId, sessionId, 'completed');
+
   } catch (error) {
     console.error('\nInvestigation failed:', error);
     appendFileSync(logFile, `\nInvestigation failed: ${error}\n`);
+    setInvestigationStatus(investigationId, sessionId, 'failed');
     process.exit(1);
   } finally {
     closeDb();

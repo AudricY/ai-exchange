@@ -8,16 +8,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { InvestigationBadge } from '@/components/InvestigationBadge';
 
-type InvestigationStatus = 'idle' | 'running' | 'completed' | 'failed';
-
-interface SessionWithReport extends Session {
-  hasReport: boolean;
-  reportGeneratedAt?: string;
-  investigationStatus: InvestigationStatus;
+interface SessionWithInvestigations extends Session {
+  investigationCount: number;
+  latestInvestigationAt?: string;
+  hasRunningInvestigation: boolean;
 }
 
 export default function HomePage() {
-  const [sessions, setSessions] = useState<SessionWithReport[]>([]);
+  const [sessions, setSessions] = useState<SessionWithInvestigations[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,8 +66,9 @@ export default function HomePage() {
                     <div className="flex items-center gap-3">
                       <StatusBadge status={session.status} />
                       <InvestigationBadge
-                        status={session.investigationStatus}
-                        generatedAt={session.reportGeneratedAt}
+                        count={session.investigationCount}
+                        isRunning={session.hasRunningInvestigation}
+                        latestAt={session.latestInvestigationAt}
                       />
                       {session.status === 'completed' && (
                         <div className="text-sm text-muted-foreground">

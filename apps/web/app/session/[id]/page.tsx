@@ -186,6 +186,7 @@ export default function SessionPage({
     setInvestigating(true);
     setInvestigationSteps([]);
     setInvestigationStats(null);
+    setSelectedReportId(null); // Clear selected report while new investigation runs
 
     try {
       const res = await fetch(`/api/sessions/${id}/investigate`, {
@@ -212,14 +213,14 @@ export default function SessionPage({
             if (data.type === 'started') {
               newInvestigationId = data.investigationId;
             } else if (data.type === 'report') {
-              // Add new report to list and select it
-              const newInvestigation: Investigation = {
-                id: data.investigationId,
-                title: `Investigation ${new Date().toLocaleString()}`,
-                report: data.report,
-                generatedAt: new Date().toISOString(),
-              };
-              setInvestigations((prev) => [newInvestigation, ...prev]);
+              // Re-fetch investigations from server to get the saved report
+              // then select the new one
+              const refreshRes = await fetch(`/api/sessions/${id}/investigate`);
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                setInvestigations(refreshData.reports || []);
+                setRunningInvestigations(refreshData.runningInvestigations || []);
+              }
               setSelectedReportId(data.investigationId);
             } else if (data.type === 'stats') {
               setInvestigationStats(data.stats);

@@ -363,8 +363,8 @@ export function createSessionTools(sessionId: string, investigationId: string) {
         endTime: z.number().optional().describe('End timestamp'),
         resolution: z.number().default(1000).describe('Candle width in ms'),
         chartType: z.enum(['candlestick', 'line', 'volume']).default('line'),
-        width: z.number().default(800),
-        height: z.number().default(400),
+        width: z.number().default(400).describe('Chart width in pixels (smaller = fewer tokens)'),
+        height: z.number().default(200).describe('Chart height in pixels (smaller = fewer tokens)'),
       }),
       execute: async ({ startTime, endTime, resolution, chartType, width, height }) => {
         try {

@@ -2,9 +2,9 @@ import type { OrderRequest, AgentConfig } from '@ai-exchange/types';
 import { BaseAgent, MarketState, AgentAction } from './base-agent.js';
 
 /**
- * Momentum trader - follows price trends with risk controls
+ * Momentum trader - follows price trends
  * Buys when price is rising, sells when falling
- * Has position limits and mean-reversion dampening to prevent runaway bubbles
+ * Uses trailing anchor that adapts to trends
  */
 export class MomentumTrader extends BaseAgent {
   private priceHistory: number[] = [];
@@ -14,7 +14,8 @@ export class MomentumTrader extends BaseAgent {
   private cooldown: number = 0;
   private cooldownPeriod: number;
   private maxPosition: number;
-  private anchorPrice: number | null = null;
+  private trailingAnchor: number | null = null;
+  private anchorDecay: number;
   private maxDeviationFromAnchor: number;
 
   constructor(config: AgentConfig, rng: () => number) {
@@ -22,9 +23,10 @@ export class MomentumTrader extends BaseAgent {
     this.lookbackPeriod = (config.params.lookbackPeriod as number) ?? 10;
     this.threshold = (config.params.threshold as number) ?? 0.02; // 2% price change
     this.orderSize = (config.params.orderSize as number) ?? 20;
-    this.cooldownPeriod = (config.params.cooldownPeriod as number) ?? 10; // Increased from 5
-    this.maxPosition = (config.params.maxPosition as number) ?? 200; // Position limit
-    this.maxDeviationFromAnchor = (config.params.maxDeviation as number) ?? 0.5; // 50% max deviation from anchor
+    this.cooldownPeriod = (config.params.cooldownPeriod as number) ?? 10;
+    this.maxPosition = (config.params.maxPosition as number) ?? 200;
+    this.anchorDecay = (config.params.anchorDecay as number) ?? 0.05; // 5% adaptation per tick
+    this.maxDeviationFromAnchor = (config.params.maxDeviation as number) ?? 1.0; // Effectively no cap
   }
 
   tick(timestamp: number, state: MarketState): AgentAction[] {
@@ -40,10 +42,15 @@ export class MomentumTrader extends BaseAgent {
     const currentPrice = state.lastTradePrice ?? state.midPrice;
     if (currentPrice === null) return actions;
 
-    // Set anchor price on first observation
-    if (this.anchorPrice === null) {
-      this.anchorPrice = currentPrice;
+    // Set initial trailing anchor on first observation
+    if (this.trailingAnchor === null) {
+      this.trailingAnchor = currentPrice;
     }
+
+    // Update trailing anchor (exponential moving average toward current price)
+    this.trailingAnchor =
+      this.trailingAnchor * (1 - this.anchorDecay) +
+      currentPrice * this.anchorDecay;
 
     // Update price history
     this.priceHistory.push(currentPrice);
@@ -60,8 +67,9 @@ export class MomentumTrader extends BaseAgent {
     const oldPrice = this.priceHistory[0];
     const priceChange = (currentPrice - oldPrice) / oldPrice;
 
-    // Check deviation from anchor - don't chase if price has moved too far
-    const deviationFromAnchor = (currentPrice - this.anchorPrice) / this.anchorPrice;
+    // Check deviation from trailing anchor
+    const deviationFromAnchor =
+      (currentPrice - this.trailingAnchor) / this.trailingAnchor;
 
     // Get current position
     const position = state.position ?? 0;
@@ -80,15 +88,13 @@ export class MomentumTrader extends BaseAgent {
         return actions;
       }
 
-      // Mean reversion check - reduce size or skip if price has deviated too far
+      // Reduce size if price deviates significantly from trailing anchor
       let adjustedSize = this.orderSize;
       if (side === 'buy' && deviationFromAnchor > this.maxDeviationFromAnchor) {
-        // Price is way above anchor, reduce or skip buying
         adjustedSize = Math.floor(this.orderSize * 0.25);
         if (adjustedSize < 5) return actions;
       }
       if (side === 'sell' && deviationFromAnchor < -this.maxDeviationFromAnchor) {
-        // Price is way below anchor, reduce or skip selling
         adjustedSize = Math.floor(this.orderSize * 0.25);
         if (adjustedSize < 5) return actions;
       }

@@ -8,7 +8,8 @@ interface PendingNewsReaction {
 
 /**
  * Fundamentals trader - trades based on fair value estimates
- * Updates fair value based on news with a reaction lag
+ * Fair value drifts over time (random walk with drift) enabling long-term trends
+ * Updates fair value based on news with reaction lag
  * Provides mean-reversion pressure when price deviates from fair value
  */
 export class FundamentalsTrader extends BaseAgent {
@@ -20,6 +21,16 @@ export class FundamentalsTrader extends BaseAgent {
   private processedNewsIds: Set<string> = new Set();
   private pendingReactions: PendingNewsReaction[] = [];
 
+  // Fair value drift parameters
+  private driftPerTick: number;
+  private volatilityPerTick: number;
+  private driftUpdateInterval: number;
+  private lastDriftUpdate: number = 0;
+
+  // News-driven drift shock
+  private pendingDriftShock: number = 0;
+  private newsDriftDecay: number;
+
   // Magnitude to fair value change mapping
   private readonly magnitudeMultipliers = {
     high: 0.08, // 8% fair value change
@@ -29,10 +40,16 @@ export class FundamentalsTrader extends BaseAgent {
 
   constructor(config: AgentConfig, rng: () => number) {
     super(config, rng);
-    this.reactionLagMs = (config.params.reactionLagMs as number) ?? 5000; // 5 second default lag
-    this.deviationThreshold = (config.params.deviationThreshold as number) ?? 0.03; // 3% deviation to trade
+    this.reactionLagMs = (config.params.reactionLagMs as number) ?? 5000;
+    this.deviationThreshold = (config.params.deviationThreshold as number) ?? 0.03;
     this.baseOrderSize = (config.params.orderSize as number) ?? 50;
     this.maxPosition = (config.params.maxPosition as number) ?? 300;
+
+    // Drift parameters - enable long-term trends
+    this.driftPerTick = (config.params.driftPerTick as number) ?? 0.0001; // 0.01% per tick
+    this.volatilityPerTick = (config.params.volatilityPerTick as number) ?? 0.0002; // 0.02% std dev
+    this.driftUpdateInterval = (config.params.driftUpdateInterval as number) ?? 500; // Update every 500ms
+    this.newsDriftDecay = (config.params.newsDriftDecay as number) ?? 0.1; // 10% decay per update
   }
 
   tick(timestamp: number, state: MarketState): AgentAction[] {
@@ -44,6 +61,24 @@ export class FundamentalsTrader extends BaseAgent {
     // Initialize fair value on first observation
     if (this.fairValue === null) {
       this.fairValue = currentPrice;
+      this.lastDriftUpdate = timestamp;
+    }
+
+    // Apply fair value drift (random walk with drift)
+    if (timestamp - this.lastDriftUpdate >= this.driftUpdateInterval) {
+      const ticksElapsed = Math.floor(
+        (timestamp - this.lastDriftUpdate) / this.driftUpdateInterval
+      );
+      for (let i = 0; i < ticksElapsed; i++) {
+        // Random walk: base drift + news shock + random volatility
+        const shock = (this.rng() - 0.5) * 2 * this.volatilityPerTick;
+        const totalDrift = this.driftPerTick + this.pendingDriftShock + shock;
+        this.fairValue *= 1 + totalDrift;
+
+        // Decay the news-driven shock
+        this.pendingDriftShock *= 1 - this.newsDriftDecay;
+      }
+      this.lastDriftUpdate = timestamp;
     }
 
     // Queue new news for later reaction (with lag)
@@ -131,14 +166,23 @@ export class FundamentalsTrader extends BaseAgent {
     if (this.fairValue === null) return;
 
     // Determine magnitude (default to medium if not specified)
-    const magnitude = (news as unknown as { magnitude?: 'low' | 'medium' | 'high' }).magnitude ?? 'medium';
+    const magnitude =
+      (news as unknown as { magnitude?: 'low' | 'medium' | 'high' }).magnitude ?? 'medium';
     const multiplier = this.magnitudeMultipliers[magnitude];
 
-    // Apply change based on sentiment
+    // Apply immediate fair value change
     if (news.sentiment === 'positive') {
       this.fairValue *= 1 + multiplier;
+      // High-magnitude positive news adds persistent upward drift
+      if (magnitude === 'high') {
+        this.pendingDriftShock += 0.0005;
+      }
     } else if (news.sentiment === 'negative') {
       this.fairValue *= 1 - multiplier;
+      // High-magnitude negative news adds persistent downward drift
+      if (magnitude === 'high') {
+        this.pendingDriftShock -= 0.0005;
+      }
     }
   }
 }

@@ -78,18 +78,32 @@ function createConfig(duration: number, seed: number): SessionConfig {
         archetype: 'noise',
         params: { orderProbability: 0.2, priceRange: 4, orderSize: 12 },
       },
-      // Trend followers
+      // Trend followers (with trailing anchor for trend-following)
       {
         id: 'momentum-1',
         name: 'Momentum Trader 1',
         archetype: 'momentum',
-        params: { lookbackPeriod: 10, threshold: 0.02, orderSize: 20, maxPosition: 150 },
+        params: {
+          lookbackPeriod: 10,
+          threshold: 0.02,
+          orderSize: 20,
+          maxPosition: 150,
+          anchorDecay: 0.03,
+          maxDeviation: 1.0,
+        },
       },
       {
         id: 'momentum-2',
         name: 'Momentum Trader 2',
         archetype: 'momentum',
-        params: { lookbackPeriod: 20, threshold: 0.03, orderSize: 15, maxPosition: 100 },
+        params: {
+          lookbackPeriod: 20,
+          threshold: 0.03,
+          orderSize: 15,
+          maxPosition: 100,
+          anchorDecay: 0.05,
+          maxDeviation: 1.0,
+        },
       },
       // Instant news reaction (HFT-like)
       {
@@ -98,18 +112,32 @@ function createConfig(duration: number, seed: number): SessionConfig {
         archetype: 'informed',
         params: { orderSize: 100, reactionStrength: 1.0, maxPosition: 400 },
       },
-      // Fair value anchors (react with lag)
+      // Fair value anchors (react with lag, fair value drifts for trends)
       {
         id: 'fundamentals-1',
         name: 'Quick Analyst',
         archetype: 'fundamentals',
-        params: { reactionLagMs: 3000, deviationThreshold: 0.03, orderSize: 40, maxPosition: 200 },
+        params: {
+          reactionLagMs: 3000,
+          deviationThreshold: 0.03,
+          orderSize: 40,
+          maxPosition: 200,
+          driftPerTick: 0.0002,
+          volatilityPerTick: 0.0003,
+        },
       },
       {
         id: 'fundamentals-2',
         name: 'Deep Value Investor',
         archetype: 'fundamentals',
-        params: { reactionLagMs: 8000, deviationThreshold: 0.05, orderSize: 80, maxPosition: 400 },
+        params: {
+          reactionLagMs: 8000,
+          deviationThreshold: 0.05,
+          orderSize: 80,
+          maxPosition: 400,
+          driftPerTick: 0.00015,
+          volatilityPerTick: 0.00025,
+        },
       },
     ],
     newsSchedule: [

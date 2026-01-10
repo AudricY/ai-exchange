@@ -71,11 +71,7 @@ function formatResultPreview(result: unknown): string {
     }
   }
 
-  const str = JSON.stringify(result, null, 2);
-  if (str.length > 500) {
-    return str.slice(0, 500) + '...';
-  }
-  return str;
+  return JSON.stringify(result, null, 2);
 }
 
 // Detect if result contains a renderable image
@@ -129,7 +125,7 @@ export function ToolCallCard({ toolCall, toolResult }: ToolCallCardProps) {
         <div className="border-t border-blue-500/20 p-3 space-y-3">
           <div>
             <div className="text-xs font-medium text-muted-foreground mb-1">Input</div>
-            <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto max-h-32">
+            <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto">
               {JSON.stringify(toolCall.input, null, 2)}
             </pre>
           </div>
@@ -147,14 +143,14 @@ export function ToolCallCard({ toolCall, toolResult }: ToolCallCardProps) {
                         alt="Chart visualization"
                         className="max-w-full rounded border border-border"
                       />
-                      <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto max-h-32">
+                      <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto">
                         {formatResultPreview(toolResult.result)}
                       </pre>
                     </div>
                   );
                 }
                 return (
-                  <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto max-h-64">
+                  <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto">
                     {formatResultPreview(toolResult.result)}
                   </pre>
                 );

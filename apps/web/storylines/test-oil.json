@@ -1,124 +1,120 @@
 {
-  "id": "storyline-1768026360799",
-  "durationMs": 30000,
+  "id": "storyline-1768031404522",
+  "durationMs": 1200000,
   "theme": "mid-cap oil exploration company",
-  "companyName": "Frontier Energy Inc.",
-  "companyDescription": "Frontier Energy Inc. is a mid-sized oil exploration and production company focused on developing unconventional oil reserves in the Permian Basin. They have a reputation for aggressive expansion and high-risk, high-reward projects.",
-  "initialPrice": 35.5,
+  "companyName": "Borealis Energy Resources",
+  "companyDescription": "Borealis Energy is an independent mid-cap firm specializing in high-stakes deep-water drilling operations in the North Sea and newly acquired offshore blocks in the Guyana-Suriname Basin.",
+  "initialPrice": 42.5,
   "events": [
     {
-      "timestamp": 1000,
-      "headline": "Frontier Energy Announces Acquisition of Beta Oil's Permian Basin Assets",
-      "content": "Frontier Energy Inc. (FEI) today announced the acquisition of Beta Oil's Permian Basin assets for $500 million. The acquisition includes several promising exploration leases and existing production infrastructure. Funding details will be disclosed in the upcoming earnings call.",
-      "source": "Bloomberg",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 4000,
-      "headline": "Local High School Wins State Championship",
-      "content": "The local high school football team, the Wildcats, secured their first state championship in over a decade, defeating their rivals in a thrilling final game.",
-      "source": "Local News",
+      "timestamp": 15000,
+      "headline": "City council approves expansion of downtown bike lanes",
+      "content": "The municipal planning committee has voted in favor of adding five miles of dedicated cycling infrastructure to the central business district.",
+      "source": "Local Daily",
       "sentiment": "neutral",
       "category": "noise"
     },
     {
-      "timestamp": 7000,
-      "headline": "Frontier Energy: CFO to present at Energy Investors Conference Next Week",
-      "content": "Frontier Energy's CFO, Sarah Jenkins, will be presenting at the Energy Investors Conference next week in Houston, Texas. The presentation will focus on the company's growth strategy and recent acquisitions.",
+      "timestamp": 125000,
+      "headline": "Borealis Energy adjusts seismic surveying schedule for Guyana block",
+      "content": "The company announced a recalibration of its exploration timeline following technical adjustments to its proprietary seismic imaging software.",
       "source": "Reuters",
-      "sentiment": "neutral",
-      "category": "material"
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
     },
     {
-      "timestamp": 10000,
-      "headline": "EPA Announces Increased Scrutiny of Water Usage in Fracking Operations",
-      "content": "The Environmental Protection Agency (EPA) announced today that it will be increasing its scrutiny of water usage in fracking operations across the country, citing concerns about potential environmental impacts. New regulations may be introduced next quarter.",
+      "timestamp": 250000,
+      "headline": "Regional tourism board reports record summer visitor numbers",
+      "content": "Tourism statistics for the past quarter show a 12% increase in international arrivals compared to the previous year.",
+      "source": "Travel News Network",
+      "sentiment": "neutral",
+      "category": "noise"
+    },
+    {
+      "timestamp": 375000,
+      "headline": "Regulatory body updates safety compliance requirements for deep-water rigs",
+      "content": "New guidelines issued this morning mandate enhanced secondary blowout preventer testing for all operators in the Atlantic margin.",
+      "source": "Bloomberg",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 500000,
+      "headline": "Minority shareholder group requests audit of operational expenditures",
+      "content": "An activist investor holding a 3% stake has formally petitioned for an independent review of recent capital allocations in South American projects.",
       "source": "WSJ",
       "sentiment": "negative",
       "category": "material",
-      "magnitude": "medium"
+      "magnitude": "high"
     },
     {
-      "timestamp": 13000,
-      "headline": "Crude Oil Prices See Slight Dip Amid Global Supply Concerns",
-      "content": "Crude oil prices experienced a slight dip today, as concerns mount regarding global supply and demand dynamics. Analysts are closely monitoring geopolitical tensions and their potential impact on production.",
-      "source": "CNBC",
+      "timestamp": 625000,
+      "headline": "Local high school robotics team wins national championship",
+      "content": "The 'Gearheads' from North Central High took home the first-place trophy at the annual robotics competition in Las Vegas.",
+      "source": "The Daily Herald",
       "sentiment": "neutral",
       "category": "noise"
     },
     {
-      "timestamp": 16000,
-      "headline": "Frontier Energy Announces Successful Test Well Results in Newly Acquired Acreage",
-      "content": "Frontier Energy Inc. (FEI) today announced successful test well results in its newly acquired acreage from Beta Oil. The initial flow rates exceeded expectations, indicating significant potential for future production.",
-      "source": "Press Release",
+      "timestamp": 750000,
+      "headline": "Borealis Energy internal report notes 'unprecedented' flow rates in secondary wellbore",
+      "content": "Preliminary telemetry from the 'Aurora-1' exploratory well indicates pressure levels significantly higher than the regional average.",
+      "source": "Oil & Gas Journal",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 19000,
-      "headline": "Annual Charity Gala Raises Record Funds for Local Hospital",
-      "content": "The annual charity gala raised a record-breaking amount of funds for the local hospital, supporting vital community healthcare initiatives.",
-      "source": "Local News",
+      "timestamp": 875000,
+      "headline": "Tech conference highlights advances in local agricultural software",
+      "content": "Industry leaders gathered today to discuss how artificial intelligence is improving crop yield forecasting for small-scale farmers.",
+      "source": "TechWire",
       "sentiment": "neutral",
       "category": "noise"
     },
     {
-      "timestamp": 22000,
-      "headline": "Analyst Downgrades Frontier Energy Citing Debt Concerns",
-      "content": "A leading financial analyst from Goldman Sachs downgraded Frontier Energy's stock rating from 'Buy' to 'Hold,' citing concerns about the company's increasing debt levels following the recent Beta Oil acquisition. The analyst believes Frontier's financial leverage could limit its ability to weather potential downturns in oil prices.",
-      "source": "MarketWatch",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 25000,
-      "headline": "Frontier Energy Announces Secondary Offering to Reduce Debt",
-      "content": "Frontier Energy Inc. (FEI) announced today its intention to conduct a secondary offering of 20 million shares to raise capital and reduce debt. The offering is expected to be priced at a discount to the current market price.",
-      "source": "SEC Filing",
-      "sentiment": "negative",
+      "timestamp": 1000000,
+      "headline": "Independent auditor confirms Guyana block reserves exceed initial estimates",
+      "content": "A third-party verification study suggests the recoverable hydrocarbons in the South American block are 40% higher than internal projections.",
+      "source": "CNBC",
+      "sentiment": "positive",
       "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 28000,
-      "headline": "Celebrity Chef Opens New Restaurant Downtown",
-      "content": "Renowned celebrity chef, Marcus Dubois, has officially opened the doors to his new flagship restaurant downtown, promising a unique dining experience.",
-      "source": "Local Magazine",
-      "sentiment": "neutral",
-      "category": "noise"
+      "timestamp": 1150000,
+      "headline": "Global major energy producer seeks data sharing agreement for South American operations",
+      "content": "Market rumors suggest a Tier-1 integrated oil company has initiated talks for a strategic technical partnership with Borealis regarding their offshore assets.",
+      "source": "Financial Times",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "medium"
     }
   ],
   "groundTruth": {
-    "narrative": "Frontier Energy, an aggressive mid-cap oil company, acquires assets from Beta Oil, initially buoying the stock. Successful test well results further boost confidence. However, increased EPA scrutiny and an analyst downgrade due to debt concerns cast a shadow. The company's secondary offering to reduce debt, while necessary, ultimately hurts investor sentiment and lowers the stock price.",
+    "narrative": "Borealis Energy initially faced a period of uncertainty characterized by technical delays and rising regulatory costs, exacerbated by an activist investor challenge. However, the narrative shifted dramatically when exploratory drilling revealed massive, higher-than-expected reserves in their South American block. This discovery not only validated their strategy but positioned them as a prime target for a strategic partnership or acquisition by a larger industry player.",
     "keyMoments": [
       {
-        "timestamp": 1000,
-        "description": "Acquisition of Beta Oil's Permian Basin Assets.",
+        "timestamp": 125000,
+        "description": "Seismic survey delays introduce initial market skepticism regarding project efficiency.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 500000,
+        "description": "The shareholder audit request creates internal friction and signals potential financial mismanagement.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 750000,
+        "description": "Unprecedented flow rates from the new wellbore provide the first concrete evidence of a major discovery.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 10000,
-        "description": "EPA Announces Increased Scrutiny of Water Usage in Fracking Operations.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 16000,
-        "description": "Frontier Energy Announces Successful Test Well Results.",
+        "timestamp": 1000000,
+        "description": "Confirmation of massive reserves by independent auditors significantly increases the company's net asset value.",
         "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 22000,
-        "description": "Analyst Downgrades Frontier Energy Citing Debt Concerns.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 25000,
-        "description": "Frontier Energy Announces Secondary Offering to Reduce Debt.",
-        "expectedPriceDirection": "down"
       }
     ]
   }

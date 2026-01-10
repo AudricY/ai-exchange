@@ -1,152 +1,118 @@
 {
-  "id": "storyline-space-launch-drama",
-  "durationMs": 300000,
-  "theme": "commercial space company attempting historic launch",
-  "companyName": "Astra Dynamics",
-  "companyDescription": "Astra Dynamics is a commercial space company developing reusable launch vehicles for satellite deployment and eventually crewed missions. The company is attempting its first orbital launch of the Nova-7 rocket, which has been delayed multiple times. Success would validate their technology and unlock billions in government and commercial contracts.",
-  "initialPrice": 22.75,
+  "id": "storyline-1768031377685",
+  "durationMs": 1200000,
+  "theme": "Commercial space company attempting historic launch",
+  "companyName": "Astraion Aerospace",
+  "companyDescription": "Astraion Aerospace is a high-growth aerospace manufacturer specializing in cost-efficient, reusable heavy-lift rockets. They are currently on the verge of launching 'Aethelred 1', a mission designed to be the first successful private landing on the lunar south pole.",
+  "initialPrice": 42.55,
   "events": [
     {
-      "timestamp": 10000,
-      "headline": "Astra Dynamics Confirms Launch Window for Nova-7 Rocket",
-      "content": "Astra Dynamics confirmed a 4-hour launch window for the Nova-7 rocket, the company's first attempt at reaching orbit. Weather conditions are currently favorable at the launch site in Florida.",
-      "source": "SpaceNews",
+      "timestamp": 0,
+      "headline": "Astraion ground crew shifts to 24-hour cycle at Cape Canaveral",
+      "content": "Operational shifts have moved to a triple-rotation schedule to ensure continuous monitoring of the Aethelred 1 launch vehicle.",
+      "source": "Bloomberg",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 35000,
-      "headline": "New Taco Restaurant Opens Downtown to Long Lines",
-      "content": "The highly anticipated opening of a celebrity chef's new taco restaurant drew crowds that wrapped around the block, with wait times exceeding two hours.",
-      "source": "Food & Wine",
+      "timestamp": 120000,
+      "headline": "Regional humidity levels remain within ten-year historical averages",
+      "content": "Meteorological data suggests that standard seasonal patterns are persisting across the Atlantic seaboard this week.",
+      "source": "Associated Press",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 60000,
-      "headline": "NASA Administrator Tweets Support for Astra Dynamics Launch",
-      "content": "NASA Administrator posted on social media expressing support for today's Astra Dynamics launch attempt, noting the importance of commercial space partnerships for future lunar missions.",
-      "source": "Twitter/X",
+      "timestamp": 300000,
+      "headline": "Regulatory oversight committee expands scope of launch zone review",
+      "content": "The federal aviation authority has requested additional environmental impact documentation regarding the offshore landing pad.",
+      "source": "The Wall Street Journal",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 450000,
+      "headline": "Former NASA propulsion lead joins Astraion advisory board",
+      "content": "Dr. Helena Vance, known for her work on the Artemis program, has accepted a consulting role with the private firm.",
+      "source": "Reuters",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "low"
     },
     {
-      "timestamp": 85000,
-      "headline": "SpaceX Announces Starship Test Flight for Next Month",
-      "content": "SpaceX announced plans for another Starship test flight next month, continuing development of the massive rocket system intended for Mars missions.",
-      "source": "Reuters",
+      "timestamp": 580000,
+      "headline": "Local cafe near Astraion HQ sees record coffee sales during overnight shifts",
+      "content": "The 'Rocket Fuel Cafe' reports a 40% increase in espresso sales as local tech workers stay up for launch windows.",
+      "source": "Florida Today",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 110000,
-      "headline": "Astra Dynamics Experiences Launch Hold Due to Ground Equipment Issue",
-      "content": "Astra Dynamics has entered a launch hold due to a ground equipment issue detected during final countdown procedures. Engineers are working to resolve the problem within the launch window.",
-      "source": "Spaceflight Now",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 135000,
-      "headline": "Summer Music Festival Lineup Announced",
-      "content": "Organizers announced the full lineup for this summer's major music festival, featuring headliners from multiple genres and attracting attention from fans worldwide.",
-      "source": "Rolling Stone",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 160000,
-      "headline": "Astra Dynamics Resumes Countdown After Clearing Equipment Anomaly",
-      "content": "Astra Dynamics has resumed the countdown sequence after engineers successfully resolved the ground equipment anomaly. The company now expects launch within the remaining window.",
+      "timestamp": 750000,
+      "headline": "Unexpected telemetry variance observed during static fire test",
+      "content": "Sensors on the Merlin-class engines reported a 2% deviation in fuel-to-oxidizer ratios during a controlled burn.",
       "source": "SpaceNews",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 185000,
-      "headline": "Astra Dynamics Nova-7 Launches Successfully",
-      "content": "Astra Dynamics' Nova-7 rocket has successfully launched from Cape Canaveral. The first stage is performing nominally as the vehicle ascends toward orbit. Second stage separation is expected in approximately 3 minutes.",
-      "source": "Live Coverage",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 210000,
-      "headline": "Nova-7 Second Stage Experiences Off-Nominal Performance",
-      "content": "Astra Dynamics reports the Nova-7 second stage is experiencing off-nominal performance after stage separation. Telemetry indicates lower than expected thrust. Mission control is evaluating whether orbital insertion is achievable.",
-      "source": "Spaceflight Now",
       "sentiment": "negative",
       "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 235000,
-      "headline": "Local Zoo Welcomes Rare Baby Panda",
-      "content": "The local zoo announced the birth of a rare giant panda cub, only the third born in the facility's history. The mother and cub are reported to be healthy.",
-      "source": "Local News",
+      "timestamp": 880000,
+      "headline": "FCC grants 60-day extension on orbital transmission window",
+      "content": "Federal communications regulators have finalized the license extension for the company's proprietary data downlink.",
+      "source": "CNBC",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "low"
+    },
+    {
+      "timestamp": 1020000,
+      "headline": "Documentary on historical rocketry hits major streaming services",
+      "content": "A new six-part series detailing the history of the Apollo missions is now available for global audiences.",
+      "source": "Variety",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 260000,
-      "headline": "Astra Dynamics Confirms Nova-7 Failed to Reach Orbit",
-      "content": "Astra Dynamics confirmed that Nova-7 failed to achieve orbital insertion due to second stage underperformance. The payload was lost. The company stated it has recovered extensive telemetry data and will conduct a thorough investigation.",
-      "source": "Press Release",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 285000,
-      "headline": "Astra Dynamics Announces Root Cause Identified; Second Launch Attempt Planned",
-      "content": "In a surprising update, Astra Dynamics announced engineers have already identified the root cause of the second stage anomaly as a faulty sensor that provided incorrect fuel mixture readings. The company stated a second Nova-7 vehicle is already in final assembly and could attempt launch within 8 weeks.",
-      "source": "SEC Filing",
+      "timestamp": 1150000,
+      "headline": "Astraion confirms ignition sequences initiated for Aethelred 1",
+      "content": "The countdown has proceeded past T-minus 10 minutes with all systems reporting green status for terminal count.",
+      "source": "Bloomberg",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
+    },
+    {
+      "timestamp": 1200000,
+      "headline": "Primary stage separation confirmed over Atlantic coordinates",
+      "content": "Video telemetry confirms the first stage booster has successfully detached and begun its controlled descent sequence.",
+      "source": "Reuters",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "high"
     }
   ],
   "groundTruth": {
-    "narrative": "Astra Dynamics attempts its critical first orbital launch with the Nova-7 rocket. Initial optimism from NASA support and a confirmed launch window gives way to tension when a ground equipment hold threatens to scrub the mission. After resolving the issue, the rocket launches successfully, but elation turns to disappointment as the second stage underperforms and fails to reach orbit. However, the company quickly identifies the root cause and announces plans for a rapid second attempt, partially salvaging investor confidence.",
+    "narrative": "Astraion Aerospace experienced a volatile preparation period for its moon mission. While early operational readiness boosted confidence, regulatory hurdles and a concerning telemetry glitch caused significant price pressure. However, the resolution of legal licenses and the successful execution of the early launch phases ultimately drove a strong positive trend at the end of the simulation.",
     "keyMoments": [
       {
-        "timestamp": 10000,
-        "description": "Launch window confirmed with favorable conditions.",
-        "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 110000,
-        "description": "Launch hold due to ground equipment issue.",
+        "timestamp": 300000,
+        "description": "Regulatory expansion suggests potential launch delays or increased compliance costs.",
         "expectedPriceDirection": "down"
       },
       {
-        "timestamp": 160000,
-        "description": "Countdown resumes after clearing anomaly.",
-        "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 185000,
-        "description": "Successful launch and first stage performance.",
-        "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 210000,
-        "description": "Second stage anomaly threatens mission.",
+        "timestamp": 750000,
+        "description": "The telemetry variance indicates a potential technical failure, increasing the risk of a catastrophic loss.",
         "expectedPriceDirection": "down"
       },
       {
-        "timestamp": 260000,
-        "description": "Mission failure confirmed - no orbital insertion.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 285000,
-        "description": "Root cause identified; second attempt planned quickly.",
+        "timestamp": 1200000,
+        "description": "Successful stage separation marks a critical technical milestone, significantly de-risking the mission.",
         "expectedPriceDirection": "up"
       }
     ]

@@ -44,7 +44,7 @@ interface ActivityFeedProps {
 }
 
 export function ActivityFeed({ steps, autoScroll = true }: ActivityFeedProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   // Group steps into activity items
   const activityItems = useMemo(() => {
@@ -90,8 +90,8 @@ export function ActivityFeed({ steps, autoScroll = true }: ActivityFeedProps) {
 
   // Auto-scroll to bottom when new items are added
   useEffect(() => {
-    if (autoScroll && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (autoScroll && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [activityItems.length, autoScroll]);
 
@@ -104,7 +104,7 @@ export function ActivityFeed({ steps, autoScroll = true }: ActivityFeedProps) {
   }
 
   return (
-    <ScrollArea className="h-[400px]" ref={scrollRef}>
+    <ScrollArea className="h-[400px]">
       <div className="space-y-3 pr-4">
         {activityItems.map((item) => {
           if (item.type === 'tool' && item.toolCall) {
@@ -129,6 +129,7 @@ export function ActivityFeed({ steps, autoScroll = true }: ActivityFeedProps) {
 
           return null;
         })}
+        <div ref={bottomRef} />
       </div>
     </ScrollArea>
   );

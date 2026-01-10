@@ -1,209 +1,147 @@
 {
-  "id": "storyline-biotech-fda-drama",
-  "durationMs": 600000,
+  "id": "storyline-1768031353351",
+  "durationMs": 1200000,
   "theme": "biotech company awaiting FDA approval",
-  "companyName": "Neuralis Therapeutics",
-  "companyDescription": "Neuralis Therapeutics is a clinical-stage biopharmaceutical company developing breakthrough treatments for neurodegenerative diseases. Their lead candidate, NRX-401, is a first-in-class therapy for early-onset Alzheimer's disease currently under FDA review. The company has no approved products and relies heavily on this single drug candidate.",
-  "initialPrice": 47.25,
+  "companyName": "AxonGene Biotics",
+  "companyDescription": "AxonGene Biotics is a clinical-stage biopharmaceutical company focused on developing proprietary gene-silencing therapies for ultra-rare neurodegenerative disorders, with its lead candidate AX-104 currently under regulatory review.",
+  "initialPrice": 42.5,
   "events": [
     {
-      "timestamp": 15000,
-      "headline": "Neuralis Therapeutics Confirms FDA Advisory Committee Meeting Scheduled",
-      "content": "Neuralis Therapeutics (NRLS) confirmed today that the FDA has scheduled an advisory committee meeting to review NRX-401, the company's Alzheimer's treatment candidate. The meeting date has been set, marking a critical milestone in the approval process.",
-      "source": "SEC Filing",
+      "timestamp": 0,
+      "headline": "FDA completes technical audit of AX-104 manufacturing site",
+      "content": "Regulatory inspectors concluded a five-day pre-approval inspection of the primary production facility with no Form 483 observations issued.",
+      "source": "Reuters",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 45000,
-      "headline": "Weekend Weather Forecast: Sunny Skies Expected Across Northeast",
-      "content": "Meteorologists predict pleasant weekend weather across the northeastern United States, with temperatures reaching the mid-70s and clear skies throughout.",
-      "source": "Weather Channel",
+      "timestamp": 100000,
+      "headline": "Metropolis City Council approves new downtown park project",
+      "content": "The city planning board has finalized the budget for the upcoming 'Green Heart' initiative scheduled for next spring.",
+      "source": "Local Gazette",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 75000,
-      "headline": "Competing Alzheimer's Drug from Biogen Shows Mixed Results in Extension Study",
-      "content": "Biogen's competing Alzheimer's treatment showed mixed results in a long-term extension study, with some patients experiencing continued cognitive decline despite treatment. The data raises questions about the durability of current approaches to the disease.",
-      "source": "STAT News",
+      "timestamp": 250000,
+      "headline": "Phase 3 extension data updated for long-term safety profile",
+      "content": "Recent updates to the AX-104 long-term monitoring database showed elevated liver enzyme levels in two additional patients during the 24-month follow-up window.",
+      "source": "Bloomberg",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 400000,
+      "headline": "Institutional investor clarifies 13G filing regarding AxonGene holdings",
+      "content": "A major healthcare-focused hedge fund reported an increased position, citing the strength of the orphan drug designation for AX-104.",
+      "source": "SEC Filings",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "low"
     },
     {
-      "timestamp": 110000,
-      "headline": "Neuralis CEO Purchases $2M in Company Stock on Open Market",
-      "content": "Neuralis Therapeutics CEO Dr. Helena Vasquez purchased approximately $2 million worth of company shares on the open market this week, according to SEC filings. The purchase was made at an average price of $48.50 per share.",
-      "source": "Bloomberg",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 140000,
-      "headline": "Local Art Museum Announces New Contemporary Exhibition",
-      "content": "The Metropolitan Museum of Contemporary Art announced a new exhibition featuring works from emerging artists around the world, opening next month.",
-      "source": "Arts Weekly",
+      "timestamp": 550000,
+      "headline": "Global coffee prices stabilize after three-month rally",
+      "content": "Favorable weather conditions in Brazil have led to increased export forecasts, cooling down the commodities market for Arabica beans.",
+      "source": "CNBC",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 175000,
-      "headline": "Former FDA Official Joins Neuralis Board of Directors",
-      "content": "Neuralis Therapeutics announced the appointment of Dr. Robert Chen, former Deputy Commissioner of the FDA, to its Board of Directors. Dr. Chen brings 25 years of regulatory experience to the company.",
-      "source": "Press Release",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 210000,
-      "headline": "Analyst Questions Neuralis Trial Data Methodology in Research Note",
-      "content": "J.P. Morgan analyst Sarah Whitfield raised questions about certain statistical methodologies used in Neuralis' Phase 3 trial for NRX-401, noting that subgroup analyses showed inconsistent results across different patient populations.",
-      "source": "J.P. Morgan Research",
+      "timestamp": 700000,
+      "headline": "Advisory Committee roster for neuro-therapeutics panel finalized",
+      "content": "The FDA published the list of experts for the upcoming panel; the roster includes several prominent statisticians known for strict adherence to primary endpoint significance.",
+      "source": "BioPharma Dive",
       "sentiment": "negative",
       "category": "material",
-      "magnitude": "medium"
+      "magnitude": "high"
     },
     {
-      "timestamp": 245000,
-      "headline": "Major League Baseball Season Opener Draws Record Viewership",
-      "content": "The opening day of the baseball season attracted record television viewership, with over 15 million viewers tuning in across multiple networks.",
-      "source": "Sports Illustrated",
+      "timestamp": 850000,
+      "headline": "Popular streaming service announces price hike for premium tier",
+      "content": "Subscribers will see a two-dollar monthly increase as the company looks to offset rising production costs for its original programming.",
+      "source": "WSJ",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 280000,
-      "headline": "Neuralis Reports FDA Requests Additional Safety Data for NRX-401",
-      "content": "Neuralis Therapeutics disclosed that the FDA has requested additional long-term safety data for NRX-401 ahead of the advisory committee meeting. The company stated it is working to compile the requested information and remains confident in the drug's safety profile.",
+      "timestamp": 950000,
+      "headline": "European Medicines Agency grants PRIORITY status to AX-104",
+      "content": "The EMA's Committee for Medicinal Products for Human Use has accepted AX-104 into the PRIME program to accelerate the assessment of the therapy.",
       "source": "Reuters",
-      "sentiment": "negative",
+      "sentiment": "positive",
       "category": "material",
-      "magnitude": "high"
+      "magnitude": "medium"
     },
     {
-      "timestamp": 315000,
-      "headline": "Biotech ETF Sees Largest Weekly Inflows in Six Months",
-      "content": "The iShares Biotechnology ETF (IBB) experienced its largest weekly inflows in six months as investors rotated into the healthcare sector amid broader market uncertainty.",
-      "source": "ETF.com",
+      "timestamp": 1050000,
+      "headline": "New study suggests moderate exercise improves sleep quality",
+      "content": "A long-term study of 5,000 adults shows that 30 minutes of daily walking increases the duration of deep sleep cycles.",
+      "source": "Health Day",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 350000,
-      "headline": "Neuralis Chief Medical Officer Resigns Citing Personal Reasons",
-      "content": "Neuralis Therapeutics announced that Chief Medical Officer Dr. James Morrison has resigned from his position effective immediately, citing personal reasons. The company has appointed interim leadership while conducting a search for his replacement.",
-      "source": "SEC Filing",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 385000,
-      "headline": "New Study Links Mediterranean Diet to Reduced Dementia Risk",
-      "content": "A new study published in the Journal of Neurology suggests that adherence to a Mediterranean diet may reduce the risk of developing dementia by up to 25 percent.",
-      "source": "Medical News Today",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 420000,
-      "headline": "Roche Expresses Interest in Neurological Disease Assets",
-      "content": "Pharmaceutical giant Roche indicated during its quarterly call that it is actively evaluating potential acquisitions in the neurology space, with particular interest in late-stage Alzheimer's assets.",
+      "timestamp": 1100000,
+      "headline": "FDA updates Prescription Drug User Fee Act date for AX-104",
+      "content": "The agency confirmed the review remains on its original timeline, indicating no request for additional clinical trials or major amendments to the data package.",
       "source": "Bloomberg",
       "sentiment": "positive",
       "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 455000,
-      "headline": "FDA Grants Priority Review Extension for Neuralis NRX-401",
-      "content": "The FDA has granted a three-month extension for the priority review of Neuralis' NRX-401, citing the need for additional time to evaluate supplementary data submitted by the company. The new PDUFA date has been set accordingly.",
-      "source": "FDA.gov",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 485000,
-      "headline": "Tech Conference Keynote Highlights AI in Drug Discovery",
-      "content": "The annual TechMed conference featured a keynote on artificial intelligence applications in drug discovery, with speakers from major pharmaceutical companies discussing future developments.",
-      "source": "TechCrunch",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 520000,
-      "headline": "Neuralis Announces Positive Interim Data from NRX-401 Compassionate Use Program",
-      "content": "Neuralis Therapeutics announced positive interim results from its compassionate use program for NRX-401, showing sustained cognitive improvement in a cohort of 50 patients over 18 months. The data will be submitted to the FDA as part of the ongoing review.",
-      "source": "Press Release",
-      "sentiment": "positive",
-      "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 555000,
-      "headline": "Boston Marathon Registration Opens for Next Year",
-      "content": "Registration for next year's Boston Marathon opened today, with organizers expecting record participation numbers following this year's successful event.",
-      "source": "Boston Globe",
-      "sentiment": "neutral",
-      "category": "noise"
+      "timestamp": 1150000,
+      "headline": "AxonGene updates supply chain infrastructure timeline",
+      "content": "Internal adjustments to the cold-chain distribution network suggest that full commercial availability could be shifted by one fiscal quarter.",
+      "source": "Stat News",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
     },
     {
-      "timestamp": 580000,
-      "headline": "Neuralis Receives Complete Response Letter from FDA",
-      "content": "Neuralis Therapeutics received a Complete Response Letter (CRL) from the FDA regarding its NRX-401 application. The agency cited the need for an additional confirmatory clinical trial before approval can be granted. The company is evaluating its options.",
-      "source": "SEC Filing",
-      "sentiment": "negative",
+      "timestamp": 1200000,
+      "headline": "FDA grants marketing authorization for AX-104 therapy",
+      "content": "The Food and Drug Administration has approved AX-104 for the treatment of rare neurodegenerative conditions, making it the first gene therapy in its class.",
+      "source": "WSJ",
+      "sentiment": "positive",
       "category": "material",
       "magnitude": "high"
     }
   ],
   "groundTruth": {
-    "narrative": "Neuralis Therapeutics, a clinical-stage biotech betting everything on their Alzheimer's drug NRX-401, experiences a rollercoaster as they navigate FDA approval. Early optimism from the scheduled advisory meeting and CEO stock purchases is tempered by analyst skepticism. The resignation of the CMO and FDA requests for additional safety data shake confidence. Brief hope emerges from positive compassionate use data and acquisition interest from Roche, but the story ends with a devastating Complete Response Letter requiring additional trials - a major setback for the company.",
+    "narrative": "The stock price of AxonGene Biotics fluctuates as investors weigh clinical risks against regulatory milestones. The initial optimism from a clean manufacturing audit is tempered by safety concerns and a skeptical advisory panel. However, international validation and a clean FDA review timeline build momentum leading up to the final approval of its lead drug candidate, AX-104.",
     "keyMoments": [
       {
-        "timestamp": 15000,
-        "description": "FDA Advisory Committee meeting scheduled - validation of the approval timeline.",
+        "timestamp": 0,
+        "description": "Clean manufacturing audit reduces regulatory risk.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 110000,
-        "description": "CEO insider purchase signals confidence in upcoming FDA decision.",
+        "timestamp": 250000,
+        "description": "Safety concerns regarding liver enzymes emerge in extension data.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 700000,
+        "description": "The appointment of a strict advisory panel creates fear of rejection.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 1100000,
+        "description": "FDA confirms no additional trials needed, signaling a likely approval.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 210000,
-        "description": "J.P. Morgan analyst questions trial methodology, raising doubts.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 280000,
-        "description": "FDA requests additional safety data - potential delay signal.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 350000,
-        "description": "CMO sudden resignation raises red flags about internal issues.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 420000,
-        "description": "Roche acquisition interest provides M&A floor for stock.",
+        "timestamp": 1200000,
+        "description": "Official FDA approval for AX-104 is granted.",
         "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 520000,
-        "description": "Positive compassionate use data provides hope for approval.",
-        "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 580000,
-        "description": "Complete Response Letter - FDA rejects application, requires new trial.",
-        "expectedPriceDirection": "down"
       }
     ]
   }

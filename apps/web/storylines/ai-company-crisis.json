@@ -1,210 +1,115 @@
 {
-  "id": "storyline-ai-company-crisis",
-  "durationMs": 600000,
+  "id": "storyline-1768031318939",
+  "durationMs": 1200000,
   "theme": "AI company navigating product launch and security crisis",
-  "companyName": "Cognition Labs",
-  "companyDescription": "Cognition Labs is a high-growth artificial intelligence company specializing in enterprise automation software. Their flagship product, CogniFlow, uses large language models to automate complex business workflows. The company went public 18 months ago and is under pressure to demonstrate profitability amid slowing enterprise spending.",
-  "initialPrice": 128.50,
+  "companyName": "NeuralPath Systems",
+  "companyDescription": "NeuralPath Systems specializes in large-scale autonomous agent orchestration and AI-driven cybersecurity frameworks for enterprise cloud environments.",
+  "initialPrice": 142.55,
   "events": [
     {
-      "timestamp": 20000,
-      "headline": "Cognition Labs Announces CogniFlow 3.0 Launch Date",
-      "content": "Cognition Labs today announced that CogniFlow 3.0, its next-generation enterprise AI platform, will launch next month. The new version promises 10x performance improvements and expanded language capabilities.",
-      "source": "Press Release",
+      "timestamp": 0,
+      "headline": "NeuralPath Systems schedules flagship product demonstration for next quarter",
+      "content": "The company announced a date for its 'Sentience 2.0' platform reveal, targeting major enterprise clients.",
+      "source": "Reuters",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 55000,
-      "headline": "Venture Capital Funding for AI Startups Reaches Record Levels",
-      "content": "Investment in artificial intelligence startups reached $25 billion globally this quarter, according to PitchBook data, as investors continue to bet on the transformative potential of the technology.",
-      "source": "TechCrunch",
+      "timestamp": 150000,
+      "headline": "Regional metropolitan park service announces new seasonal trail map",
+      "content": "Local authorities have released updated hiking maps for the greater metropolitan area ahead of the summer season.",
+      "source": "Local Gazette",
       "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 90000,
-      "headline": "JPMorgan Signs Multi-Year Contract with Cognition Labs",
-      "content": "JPMorgan Chase has signed a five-year, $150 million contract with Cognition Labs to deploy CogniFlow across its consumer banking operations. The deal is one of the largest enterprise AI contracts announced this year.",
-      "source": "Wall Street Journal",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 125000,
-      "headline": "National Coffee Day Celebrated with Free Drinks at Major Chains",
-      "content": "Major coffee chains are celebrating National Coffee Day with free drink promotions, expecting to serve millions of complimentary beverages nationwide.",
-      "source": "USA Today",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 160000,
-      "headline": "Security Researcher Claims Vulnerability in CogniFlow API",
-      "content": "A security researcher posted on social media claiming to have discovered a critical vulnerability in CogniFlow's API that could expose customer data. Cognition Labs has not yet responded to requests for comment.",
-      "source": "Twitter/X",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 195000,
-      "headline": "Cognition Labs Dismisses Security Claims as Unfounded",
-      "content": "Cognition Labs issued a statement dismissing recent security vulnerability claims as 'unfounded and irresponsible speculation.' The company stated its security team has found no evidence of any exploitable vulnerabilities.",
-      "source": "Press Release",
-      "sentiment": "positive",
-      "category": "material",
+      "category": "noise",
       "magnitude": "low"
-    },
-    {
-      "timestamp": 230000,
-      "headline": "Documentary About Silicon Valley Culture Premieres at Film Festival",
-      "content": "A new documentary exploring the culture and controversies of Silicon Valley premiered at the Sundance Film Festival, receiving mixed reviews from critics.",
-      "source": "Variety",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 265000,
-      "headline": "Multiple Cognition Labs Customers Report Data Access Issues",
-      "content": "Several enterprise customers of Cognition Labs reported experiencing intermittent data access issues with the CogniFlow platform. The company acknowledged the reports and stated engineers are investigating.",
-      "source": "The Information",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "medium"
     },
     {
       "timestamp": 300000,
-      "headline": "Cognition Labs Confirms Security Incident Affecting Customer Data",
-      "content": "Cognition Labs confirmed it is investigating a security incident that may have affected customer data. The company has engaged a third-party forensics firm and notified relevant authorities. Services have been temporarily suspended for some customers.",
-      "source": "SEC Filing",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 335000,
-      "headline": "Annual Charity 5K Run Raises Record Funds for Children's Hospital",
-      "content": "The annual charity run through downtown raised a record $2 million for the local children's hospital, with over 10,000 participants joining the event.",
-      "source": "Local News",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 365000,
-      "headline": "Cognition Labs CTO Departs Company Effective Immediately",
-      "content": "Cognition Labs announced that Chief Technology Officer Marcus Wei has departed the company effective immediately to 'pursue other opportunities.' CEO Sarah Park will assume interim oversight of technology operations.",
+      "headline": "Executive team confirms audit of core data infrastructure protocols",
+      "content": "In a brief statement, management noted that a comprehensive review of encryption standard compliance is currently underway.",
       "source": "Bloomberg",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 400000,
-      "headline": "OpenAI Announces New Enterprise Security Certifications",
-      "content": "OpenAI announced it has achieved SOC 2 Type II and ISO 27001 certifications for its enterprise products, positioning itself as a security-focused option for corporate customers.",
-      "source": "Reuters",
       "sentiment": "negative",
       "category": "material",
       "magnitude": "low"
     },
     {
-      "timestamp": 435000,
-      "headline": "Cognition Labs Faces Class Action Lawsuit Over Data Breach",
-      "content": "A class action lawsuit has been filed against Cognition Labs on behalf of affected customers following the confirmed data breach. The complaint alleges negligence and seeks damages exceeding $500 million.",
-      "source": "Law360",
+      "timestamp": 450000,
+      "headline": "City council approves expansion of downtown bicycle infrastructure",
+      "content": "The municipal board voted unanimously to increase funding for dedicated cycling lanes across the central business district.",
+      "source": "City Press",
+      "sentiment": "neutral",
+      "category": "noise",
+      "magnitude": "low"
+    },
+    {
+      "timestamp": 600000,
+      "headline": "Open-source repository flags unusual activity in proprietary encryption libraries",
+      "content": "Third-party developers identified unexpected packet behavior within the latest community-facing module used by major AI firms.",
+      "source": "TechCrunch",
       "sentiment": "negative",
+      "category": "material",
+      "magnitude": "high"
+    },
+    {
+      "timestamp": 750000,
+      "headline": "National meteorological agency predicts mild autumn across the northern hemisphere",
+      "content": "Forecasters expect temperatures to remain slightly above average for the coming months due to persistent high-pressure systems.",
+      "source": "AP News",
+      "sentiment": "neutral",
+      "category": "noise",
+      "magnitude": "low"
+    },
+    {
+      "timestamp": 900000,
+      "headline": "Chief Security Officer transitions to advisory role effective immediately",
+      "content": "The company announced that its head of security will step down from day-to-day operations to focus on long-term strategy.",
+      "source": "WSJ",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "high"
+    },
+    {
+      "timestamp": 1050000,
+      "headline": "NeuralPath Systems releases patch v4.2.1 following internal validation cycle",
+      "content": "The update addresses structural inefficiencies in the agent-to-cloud communication protocol identified during the recent audit.",
+      "source": "CNBC",
+      "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 465000,
-      "headline": "New Study Shows Remote Work Productivity Gains Sustained",
-      "content": "A Stanford study found that productivity gains from remote work arrangements have been sustained over the past two years, challenging assumptions about return-to-office mandates.",
-      "source": "Harvard Business Review",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 495000,
-      "headline": "Microsoft Rumored to Explore Cognition Labs Acquisition",
-      "content": "Microsoft is reportedly exploring a potential acquisition of Cognition Labs, according to sources familiar with the matter. Discussions are said to be preliminary, with the security incident complicating negotiations.",
-      "source": "CNBC",
+      "timestamp": 1200000,
+      "headline": "Joint venture established with Tier-1 cloud provider for integrated security stack",
+      "content": "The strategic alliance will see NeuralPath's core AI logic integrated into the world's largest cloud computing infrastructure.",
+      "source": "Bloomberg",
       "sentiment": "positive",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 530000,
-      "headline": "Cognition Labs Board Hires Crisis Management Advisors",
-      "content": "Cognition Labs' board of directors has engaged crisis management and strategic advisory firms to help navigate the company's current challenges, according to people familiar with the situation.",
-      "source": "Financial Times",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "low"
-    },
-    {
-      "timestamp": 560000,
-      "headline": "Annual Auto Show Features Latest Electric Vehicle Models",
-      "content": "The annual international auto show opened its doors featuring the latest electric vehicle models from major manufacturers, with several new concept cars generating significant buzz.",
-      "source": "Motor Trend",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 585000,
-      "headline": "Cognition Labs Announces Layoffs and Strategic Review",
-      "content": "Cognition Labs announced it will lay off 30% of its workforce and has initiated a strategic review of alternatives, including a potential sale of the company. Q3 revenue guidance has been withdrawn pending the completion of the review.",
-      "source": "SEC Filing",
-      "sentiment": "negative",
       "category": "material",
       "magnitude": "high"
     }
   ],
   "groundTruth": {
-    "narrative": "Cognition Labs, a high-flying AI company, begins on a high note with a major product launch announcement and a landmark JPMorgan deal. However, a security researcher's vulnerability claims, initially dismissed, prove prescient as the company confirms a major data breach. The crisis escalates with the sudden departure of the CTO, a class action lawsuit, and competitive pressure from OpenAI. Brief hope emerges with Microsoft acquisition rumors, but the story concludes with massive layoffs and a strategic review, leaving the company's future uncertain.",
+    "narrative": "NeuralPath Systems experienced a volatile cycle starting with product hype, followed by a hidden security crisis discovered through infrastructure audits. The resignation of the CSO signaled the peak of the crisis, which was eventually resolved via a rapid technical patch and a major strategic partnership that restored market confidence.",
     "keyMoments": [
       {
-        "timestamp": 20000,
-        "description": "CogniFlow 3.0 launch announcement builds anticipation.",
+        "timestamp": 0,
+        "description": "Initial growth phase driven by upcoming product launch news.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 90000,
-        "description": "Major JPMorgan contract validates enterprise traction.",
+        "timestamp": 600000,
+        "description": "Technical vulnerability discovery leads to a sharp decline in confidence.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 900000,
+        "description": "Leadership instability regarding the CSO role causes a final price floor test.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 1200000,
+        "description": "Validation of security resolution and massive cloud partnership triggers a strong rebound.",
         "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 160000,
-        "description": "Security vulnerability claims create uncertainty.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 300000,
-        "description": "Company confirms data breach affecting customers.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 365000,
-        "description": "CTO sudden departure signals internal crisis.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 435000,
-        "description": "Class action lawsuit threatens significant liability.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 495000,
-        "description": "Microsoft acquisition rumors provide potential exit.",
-        "expectedPriceDirection": "up"
-      },
-      {
-        "timestamp": 585000,
-        "description": "Layoffs and strategic review confirm company in distress.",
-        "expectedPriceDirection": "down"
       }
     ]
   }

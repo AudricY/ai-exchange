@@ -83,7 +83,7 @@ export async function investigate(
 
   try {
     const result = await generateText({
-      model: google('gemini-3-pro-preview'),
+      model: google('gemini-3-flash-preview'),
       system: SYSTEM_PROMPT,
       prompt: INVESTIGATION_PROMPT,
       tools,
@@ -159,7 +159,7 @@ export async function investigateStream(
   const tools = createSessionTools(sessionId);
 
   const result = streamText({
-    model: google('gemini-3-pro-preview'),
+    model: google('gemini-3-flash-preview'),
     system: SYSTEM_PROMPT,
     prompt: INVESTIGATION_PROMPT,
     tools,

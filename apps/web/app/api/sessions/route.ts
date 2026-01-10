@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createSession, listSessions, getReportStatuses } from '@ai-exchange/db';
 import type { SessionConfig } from '@ai-exchange/types';
+import { STORYLINE_OPTIONS } from '@/lib/storylines';
+import { loadStoryline } from '@/lib/storylines.server';
 
 // Default session config for new sessions
 const DEFAULT_CONFIG: SessionConfig = {
@@ -89,14 +91,43 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const id = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const name = body.name || `Session ${new Date().toLocaleString()}`;
 
-    // Merge provided config with defaults
-    const config: SessionConfig = {
-      ...DEFAULT_CONFIG,
-      ...body.config,
-      seed: body.config?.seed ?? Date.now(),
-    };
+    let config: SessionConfig;
+    let name: string;
+
+    // Check if this is a storyline-based session
+    if (body.storylineId) {
+      // Validate storyline ID
+      const storylineOption = STORYLINE_OPTIONS.find((s) => s.id === body.storylineId);
+      if (!storylineOption) {
+        return NextResponse.json(
+          { error: 'Invalid storyline ID' },
+          { status: 400 }
+        );
+      }
+
+      // Load storyline to get config values
+      const storyline = loadStoryline(body.storylineId);
+
+      // Create config with storyline values and default agents
+      config = {
+        ...DEFAULT_CONFIG,
+        seed: Date.now(),
+        initialPrice: storyline.initialPrice,
+        durationMs: storyline.durationMs,
+        storylineId: body.storylineId,
+      };
+
+      name = storyline.companyName;
+    } else {
+      // Traditional config-based session
+      name = body.name || `Session ${new Date().toLocaleString()}`;
+      config = {
+        ...DEFAULT_CONFIG,
+        ...body.config,
+        seed: body.config?.seed ?? Date.now(),
+      };
+    }
 
     const session = createSession(id, name, config);
 

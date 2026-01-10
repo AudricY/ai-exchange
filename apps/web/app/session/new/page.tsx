@@ -3,65 +3,52 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { SessionConfig } from '@ai-exchange/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { PresetSelector } from '@/components/session/PresetSelector';
-import { AgentEditor } from '@/components/session/AgentEditor';
-import { NewsScheduleEditor } from '@/components/session/NewsScheduleEditor';
-import { PRESETS, type PresetKey } from '@/lib/presets';
+import { Card, CardContent } from '@/components/ui/card';
+import { STORYLINE_OPTIONS, type StorylineOption } from '@/lib/storylines';
 
 export default function NewSessionPage() {
   const router = useRouter();
-  const [selectedPreset, setSelectedPreset] = useState<PresetKey>('basic');
-  const [config, setConfig] = useState<SessionConfig>({ ...PRESETS.basic.config });
-  const [sessionName, setSessionName] = useState(`Session ${new Date().toLocaleString()}`);
-  const [creating, setCreating] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handlePresetChange = (key: PresetKey) => {
-    setSelectedPreset(key);
-    setConfig({
-      ...PRESETS[key].config,
-      seed: Date.now(), // Fresh seed each time
-    });
-  };
+  const handleStorylineClick = async (storyline: StorylineOption) => {
+    if (loading) return;
 
-  const handleCreate = async () => {
-    if (config.agents.length === 0) {
-      setError('Please add at least one agent');
-      return;
-    }
-
-    setCreating(true);
+    setLoading(storyline.id);
     setError(null);
 
     try {
-      const res = await fetch('/api/sessions', {
+      // Create session with storyline
+      const createRes = await fetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: sessionName,
-          config,
-        }),
+        body: JSON.stringify({ storylineId: storyline.id }),
       });
 
-      const data = await res.json();
+      const createData = await createRes.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to create session');
+      if (!createRes.ok) {
+        throw new Error(createData.error || 'Failed to create session');
       }
 
-      if (data.session) {
-        router.push(`/session/${data.session.id}`);
+      const sessionId = createData.session.id;
+
+      // Run simulation immediately
+      const runRes = await fetch(`/api/sessions/${sessionId}/run`, {
+        method: 'POST',
+      });
+
+      const runData = await runRes.json();
+
+      if (!runRes.ok) {
+        throw new Error(runData.error || 'Failed to start simulation');
       }
+
+      // Redirect to session page
+      router.push(`/session/${sessionId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create session');
-    } finally {
-      setCreating(false);
+      setLoading(null);
     }
   };
 
@@ -72,105 +59,11 @@ export default function NewSessionPage() {
         <Link href="/" className="text-muted-foreground hover:text-foreground text-sm">
           ← Back to sessions
         </Link>
-        <h2 className="text-2xl font-bold mt-2">Create New Session</h2>
+        <h2 className="text-2xl font-bold mt-2">Choose a Storyline</h2>
         <p className="text-muted-foreground text-sm mt-1">
-          Configure your market simulation settings
+          Select a market scenario to simulate
         </p>
       </div>
-
-      {/* Session Name */}
-      <Card>
-        <CardContent className="pt-6">
-          <Label>Session Name</Label>
-          <Input
-            value={sessionName}
-            onChange={(e) => setSessionName(e.target.value)}
-            placeholder="Enter session name..."
-            className="mt-2"
-          />
-        </CardContent>
-      </Card>
-
-      {/* Preset Selector */}
-      <div>
-        <h3 className="text-lg font-medium mb-4">Choose a Preset</h3>
-        <PresetSelector selected={selectedPreset} onSelect={handlePresetChange} />
-      </div>
-
-      <Separator />
-
-      {/* Basic Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-6">
-            <div>
-              <Label>Duration (seconds)</Label>
-              <Input
-                type="number"
-                value={config.durationMs / 1000}
-                onChange={(e) => setConfig({
-                  ...config,
-                  durationMs: Math.max(10, parseInt(e.target.value) || 60) * 1000
-                })}
-                min={10}
-                max={300}
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label>Initial Price</Label>
-              <Input
-                type="number"
-                value={config.initialPrice}
-                onChange={(e) => setConfig({
-                  ...config,
-                  initialPrice: Math.max(1, parseFloat(e.target.value) || 100)
-                })}
-                min={1}
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label>Tick Size</Label>
-              <Input
-                type="number"
-                value={config.tickSize}
-                onChange={(e) => setConfig({
-                  ...config,
-                  tickSize: Math.max(0.01, parseFloat(e.target.value) || 1)
-                })}
-                min={0.01}
-                step={0.01}
-                className="mt-2"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Agent Editor */}
-      <Card>
-        <CardContent className="pt-6">
-          <AgentEditor
-            agents={config.agents}
-            onChange={(agents) => setConfig({ ...config, agents })}
-          />
-        </CardContent>
-      </Card>
-
-      {/* News Schedule Editor */}
-      <Card>
-        <CardContent className="pt-6">
-          <NewsScheduleEditor
-            newsSchedule={config.newsSchedule}
-            durationMs={config.durationMs}
-            onChange={(newsSchedule) => setConfig({ ...config, newsSchedule })}
-          />
-        </CardContent>
-      </Card>
 
       {/* Error Message */}
       {error && (
@@ -179,18 +72,36 @@ export default function NewSessionPage() {
         </div>
       )}
 
-      {/* Create Button */}
-      <div className="flex justify-end gap-4">
-        <Link href="/">
-          <Button variant="outline">Cancel</Button>
-        </Link>
-        <Button
-          onClick={handleCreate}
-          disabled={creating}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          {creating ? 'Creating...' : 'Create Session'}
-        </Button>
+      {/* Storyline Cards */}
+      <div className="grid gap-4">
+        {STORYLINE_OPTIONS.map((storyline) => (
+          <Card
+            key={storyline.id}
+            className={`cursor-pointer transition-all hover:border-primary ${
+              loading === storyline.id ? 'opacity-75' : ''
+            } ${loading && loading !== storyline.id ? 'opacity-50 pointer-events-none' : ''}`}
+            onClick={() => handleStorylineClick(storyline)}
+          >
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">{storyline.name}</h3>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {storyline.description}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-muted-foreground text-sm">
+                    {storyline.duration}
+                  </span>
+                  {loading === storyline.id && (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

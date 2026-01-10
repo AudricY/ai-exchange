@@ -1,7 +1,7 @@
 {
-  "name": "ai-exchange",
+  "name": "forensix",
   "version": "1.0.0",
-  "description": "",
+  "description": "Synthetic market simulator with AI-powered forensic analysis",
   "main": "index.js",
   "scripts": {
     "build": "turbo build",

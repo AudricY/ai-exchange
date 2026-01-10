@@ -25,6 +25,7 @@ export interface SessionConfig {
   agents: AgentConfig[];
   newsSchedule: NewsScheduleItem[];
   docInjects: DocInjectItem[];
+  storylineId?: string;
 }
 
 export interface Session {

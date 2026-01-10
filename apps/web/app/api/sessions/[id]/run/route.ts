@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@ai-exchange/db';
 import { SimulationRunner } from '@ai-exchange/simulation';
+import type { Storyline } from '@ai-exchange/types';
+import { loadStoryline } from '@/lib/storylines.server';
 
 export async function POST(
   request: Request,
@@ -22,10 +24,17 @@ export async function POST(
       );
     }
 
+    // Load storyline if session has storylineId
+    let storyline: Storyline | undefined;
+    if (session.config.storylineId) {
+      storyline = loadStoryline(session.config.storylineId);
+    }
+
     // Run simulation asynchronously
     const runner = new SimulationRunner({
       sessionId: id,
       config: session.config,
+      storyline,
     });
 
     // Start the simulation (don't await - let it run in background)

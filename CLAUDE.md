@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AI Exchange is a **double-auction mini exchange** (limit order book + matching engine) that generates synthetic market sessions with realistic information streams. A Gemini-powered forensics agent analyzes sessions to produce cited investigation reports.
+**ForensiX** is a synthetic market simulator with AI-powered forensic analysis. It runs a double-auction exchange (limit order book + matching engine) that generates realistic trading sessions. A Gemini-powered agent investigates sessions and produces cited forensic reports.
 
 ## Commands
 

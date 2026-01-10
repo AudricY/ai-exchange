@@ -3,8 +3,8 @@ import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI Exchange - Market Black Box Agent',
-  description: 'Double-auction mini exchange with forensic analysis',
+  title: 'ForensiX - Market Forensics Agent',
+  description: 'Synthetic market simulator with AI-powered forensic analysis',
 };
 
 export default function RootLayout({
@@ -18,9 +18,9 @@ export default function RootLayout({
         <nav className="border-b border-border px-6 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
-              <h1 className="text-xl font-bold">AI Exchange</h1>
+              <h1 className="text-xl font-bold">ForensiX</h1>
             </Link>
-            <span className="text-muted-foreground">Market Black Box Agent</span>
+            <span className="text-muted-foreground">Market Forensics Agent</span>
             <div className="flex-1" />
             <Link href="/" className="text-sm hover:text-foreground text-muted-foreground">
               Sessions

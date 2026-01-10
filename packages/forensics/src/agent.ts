@@ -42,7 +42,7 @@ export async function investigate(
 
   try {
     const result = await generateText({
-      model: google('gemini-2.0-flash'),
+      model: google('gemini-3-pro-preview'),
       system: SYSTEM_PROMPT,
       prompt: `${INVESTIGATION_PROMPT}\n\nSession ID: ${sessionId}`,
       tools,
@@ -92,7 +92,7 @@ export async function investigateStream(
   const { sessionId, maxSteps = 15 } = options;
 
   const result = streamText({
-    model: google('gemini-2.0-flash'),
+    model: google('gemini-3-pro-preview'),
     system: SYSTEM_PROMPT,
     prompt: `${INVESTIGATION_PROMPT}\n\nSession ID: ${sessionId}`,
     tools,

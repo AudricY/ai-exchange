@@ -14,6 +14,11 @@ import { OrderBook } from '@/components/OrderBook';
 import { TradesFeed } from '@/components/TradesFeed';
 import { ReplayScrubber } from '@/components/ReplayScrubber';
 import { InvestigationPanel } from '@/components/InvestigationPanel';
+import { NewsFeed } from '@/components/NewsFeed';
+import { OrderFeed } from '@/components/OrderFeed';
+import { AgentThoughts } from '@/components/AgentThoughts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface InvestigationStep {
   type: 'tool_call' | 'thought' | 'hypothesis' | 'evidence';
@@ -208,7 +213,7 @@ export default function SessionPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">Loading session...</div>
+        <div className="text-muted-foreground">Loading session...</div>
       </div>
     );
   }
@@ -216,7 +221,7 @@ export default function SessionPage({
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <div className="text-gray-400">Session not found</div>
+        <div className="text-muted-foreground">Session not found</div>
         <Link href="/" className="text-blue-400 hover:underline">
           Back to sessions
         </Link>
@@ -232,11 +237,11 @@ export default function SessionPage({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/" className="text-gray-400 hover:text-white text-sm">
+          <Link href="/" className="text-muted-foreground hover:text-foreground text-sm">
             ← Back to sessions
           </Link>
           <h2 className="text-2xl font-bold mt-2">{session.name}</h2>
-          <p className="text-gray-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Status: {session.status} | Events: {session.eventCount} | Trades:{' '}
             {session.tradeCount}
           </p>
@@ -282,21 +287,46 @@ export default function SessionPage({
               <Chart data={ohlcv} currentTime={currentTime} />
             </div>
 
-            {/* Right column - Order book and trades */}
+            {/* Right column - Order book and tabbed feeds */}
             <div className="space-y-6">
               <OrderBook snapshot={snapshot} />
-              <TradesFeed events={visibleEvents} />
+              <Card>
+                <CardContent className="pt-6">
+                  <Tabs defaultValue="trades">
+                    <TabsList className="grid w-full grid-cols-3 mb-4">
+                      <TabsTrigger value="trades">Trades</TabsTrigger>
+                      <TabsTrigger value="orders">Orders</TabsTrigger>
+                      <TabsTrigger value="news">News</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="trades" className="mt-0">
+                      <TradesFeed events={visibleEvents} />
+                    </TabsContent>
+                    <TabsContent value="orders" className="mt-0">
+                      <OrderFeed events={visibleEvents} agents={session.config?.agents} />
+                    </TabsContent>
+                    <TabsContent value="news" className="mt-0">
+                      <NewsFeed events={visibleEvents} />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
-          {/* Investigation panel */}
-          <InvestigationPanel
-            sessionId={id}
-            report={report}
-            isInvestigating={investigating}
-            steps={investigationSteps}
-            onStartInvestigation={startInvestigation}
-          />
+          {/* Bottom row - Investigation and Agent Thoughts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <InvestigationPanel
+              sessionId={id}
+              report={report}
+              isInvestigating={investigating}
+              steps={investigationSteps}
+              onStartInvestigation={startInvestigation}
+            />
+            <AgentThoughts
+              events={visibleEvents}
+              agents={session.config?.agents}
+            />
+          </div>
         </>
       )}
     </div>

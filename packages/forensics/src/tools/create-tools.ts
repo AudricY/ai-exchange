@@ -14,7 +14,6 @@ import type {
   TapeEvent,
   TapeEventType,
   ForensicsReport,
-  AgentThoughtEvent,
   OrderBookSnapshot,
 } from '@ai-exchange/types';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
@@ -278,41 +277,8 @@ export function createSessionTools(sessionId: string) {
       },
     }),
 
-    get_agent_thoughts: tool({
-      description: 'Get agent thought events to understand trader reasoning.',
-      inputSchema: z.object({
-        agentId: z.string().optional().describe('Filter by agent'),
-        startTime: z.number().optional(),
-        endTime: z.number().optional(),
-        limit: z.number().default(50),
-      }),
-      execute: async ({ agentId, startTime, endTime, limit }) => {
-        const events = await fetchTapeEvents({
-          sessionId,
-          startTime,
-          endTime,
-          eventTypes: ['agent_thought'],
-          limit: limit * 2,
-        });
-
-        const thoughtEvents = events.filter(
-          (e): e is AgentThoughtEvent => e.type === 'agent_thought'
-        );
-
-        const filtered = agentId
-          ? thoughtEvents.filter((e) => e.agentId === agentId)
-          : thoughtEvents;
-
-        return {
-          thoughts: filtered.slice(0, limit).map((e) => ({
-            timestamp: e.timestamp,
-            agentId: e.agentId,
-            thought: e.thought,
-          })),
-          count: filtered.length,
-        };
-      },
-    }),
+    // NOTE: get_agent_thoughts removed - forensics shouldn't have access to internal reasoning
+    // Investigators must infer intent from observable behavior only
 
     analyze_agent_correlation: tool({
       description: 'Analyze trading correlations between agents to detect coordination.',

@@ -5,14 +5,13 @@
  */
 
 import { investigate, type InvestigationStep, type InvestigationResult } from '@ai-exchange/forensics';
-import { getSession, getReport, closeDb } from '@ai-exchange/db';
+import { getSession, closeDb } from '@ai-exchange/db';
 import { mkdirSync, appendFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 interface ParsedArgs {
   sessionId: string;
   maxSteps?: number;
-  adaptive: boolean;
 }
 
 function parseArgs(): ParsedArgs {
@@ -26,34 +25,26 @@ Arguments:
   sessionId    The session ID to investigate
 
 Options:
-  --max-steps <n>    Maximum total steps (default: 200)
-  --adaptive         Allow agent to request extended investigation (default: true)
-  --no-adaptive      Disable adaptive depth - use fixed step limit
+  --max-steps <n>    Maximum steps for investigation (default: 100)
 
 Environment:
   GOOGLE_GENERATIVE_AI_API_KEY    Required for Gemini API access
 
 Examples:
   pnpm investigate session-123456
-  pnpm investigate session-123456 --max-steps 100
-  pnpm investigate session-123456 --no-adaptive
+  pnpm investigate session-123456 --max-steps 50
 `);
     process.exit(args.length === 0 ? 1 : 0);
   }
 
   const result: ParsedArgs = {
     sessionId: args[0],
-    adaptive: true,
   };
 
   for (let i = 1; i < args.length; i++) {
     if (args[i] === '--max-steps' && args[i + 1]) {
       result.maxSteps = parseInt(args[i + 1], 10);
       i++;
-    } else if (args[i] === '--adaptive') {
-      result.adaptive = true;
-    } else if (args[i] === '--no-adaptive') {
-      result.adaptive = false;
     }
   }
 
@@ -61,7 +52,7 @@ Examples:
 }
 
 async function main() {
-  const { sessionId, maxSteps, adaptive } = parseArgs();
+  const { sessionId, maxSteps } = parseArgs();
 
   // Check for API key
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
@@ -94,14 +85,13 @@ async function main() {
   };
 
   log('='.repeat(60));
-  log('Forensics Investigation (Enhanced)');
+  log('Forensics Investigation');
   log('='.repeat(60));
   log(`Session ID: ${sessionId}`);
   log(`Name: ${session.name}`);
   log(`Events: ${session.eventCount}`);
   log(`Trades: ${session.tradeCount}`);
-  log(`Adaptive depth: ${adaptive ? 'enabled' : 'disabled'}`);
-  log(`Max steps: ${maxSteps || 200}`);
+  log(`Max steps: ${maxSteps || 100}`);
   log(`Log file: ${logFile}`);
   log('='.repeat(60));
   log('\nStarting investigation...\n');
@@ -113,9 +103,7 @@ async function main() {
   try {
     const result: InvestigationResult = await investigate({
       sessionId,
-      initialMaxSteps: 25,
-      maxTotalSteps: maxSteps || 200,
-      allowExtension: adaptive,
+      maxSteps: maxSteps || 100,
       onStep: (step: InvestigationStep) => {
         stepCount++;
         const elapsed = Date.now() - startTime;
@@ -148,7 +136,6 @@ async function main() {
     log('='.repeat(60));
     log(`Steps: ${result.stepCount}`);
     log(`Time: ${result.elapsedMs}ms`);
-    log(`Extensions requested: ${result.extensionsRequested}`);
     log('');
 
     // Token usage section
@@ -207,7 +194,6 @@ async function main() {
         completedAt: new Date().toISOString(),
         elapsedMs: result.elapsedMs,
         stepCount: result.stepCount,
-        extensionsRequested: result.extensionsRequested,
         tokenUsage: result.usage,
         steps,
         report,

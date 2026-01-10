@@ -14,17 +14,12 @@ import { OrderBook } from '@/components/OrderBook';
 import { TradesFeed } from '@/components/TradesFeed';
 import { ReplayScrubber } from '@/components/ReplayScrubber';
 import { InvestigationPanel } from '@/components/InvestigationPanel';
+import { type InvestigationStep } from '@/components/investigation/ActivityFeed';
 import { NewsFeed } from '@/components/NewsFeed';
 import { OrderFeed } from '@/components/OrderFeed';
 import { AgentThoughts } from '@/components/AgentThoughts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-
-interface InvestigationStep {
-  type: 'tool_call' | 'thought' | 'hypothesis' | 'evidence';
-  content: string;
-  timestamp: number;
-}
 
 export default function SessionPage({
   params,
@@ -204,15 +199,9 @@ export default function SessionPage({
             const data = JSON.parse(line.slice(6));
             if (data.type === 'report') {
               setReport(data.report);
-            } else {
-              setInvestigationSteps((prev) => [
-                ...prev,
-                {
-                  type: data.type,
-                  content: data.content,
-                  timestamp: Date.now(),
-                },
-              ]);
+            } else if (data.type === 'tool_call' || data.type === 'tool_result' || data.type === 'thinking') {
+              // New step format - pass through directly
+              setInvestigationSteps((prev) => [...prev, data as InvestigationStep]);
             }
           } catch {
             // Skip malformed lines
@@ -282,29 +271,34 @@ export default function SessionPage({
       )}
 
       {session.status === 'completed' && (
-        <>
-          {/* Replay controls */}
-          <ReplayScrubber
-            currentTime={currentTime}
-            duration={duration}
-            isPlaying={isPlaying}
-            onTimeChange={setCurrentTime}
-            onPlayPause={() => setIsPlaying(!isPlaying)}
-            onReset={() => {
-              setCurrentTime(0);
-              setIsPlaying(false);
-            }}
-          />
+        <Tabs defaultValue="simulation" className="space-y-6">
+          <TabsList className="grid w-64 grid-cols-2">
+            <TabsTrigger value="simulation">Simulation</TabsTrigger>
+            <TabsTrigger value="investigation">
+              Investigation
+              {report && <span className="ml-1.5 h-2 w-2 rounded-full bg-purple-500" />}
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Main content grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left column - Chart */}
-            <div className="lg:col-span-2">
-              <Chart data={ohlcv} currentTime={currentTime} />
-            </div>
+          <TabsContent value="simulation" className="space-y-6 mt-0">
+            {/* Replay controls */}
+            <ReplayScrubber
+              currentTime={currentTime}
+              duration={duration}
+              isPlaying={isPlaying}
+              onTimeChange={setCurrentTime}
+              onPlayPause={() => setIsPlaying(!isPlaying)}
+              onReset={() => {
+                setCurrentTime(0);
+                setIsPlaying(false);
+              }}
+            />
 
-            {/* Right column - Order book and tabbed feeds */}
-            <div className="space-y-6">
+            {/* Chart - full width */}
+            <Chart data={ohlcv} currentTime={currentTime} />
+
+            {/* Data panels row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <OrderBook snapshot={snapshot} />
               <Card>
                 <CardContent className="pt-6">
@@ -326,11 +320,14 @@ export default function SessionPage({
                   </Tabs>
                 </CardContent>
               </Card>
+              <AgentThoughts
+                events={visibleEvents}
+                agents={session.config?.agents}
+              />
             </div>
-          </div>
+          </TabsContent>
 
-          {/* Bottom row - Investigation and Agent Thoughts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="investigation" className="mt-0">
             <InvestigationPanel
               sessionId={id}
               report={report}
@@ -338,12 +335,8 @@ export default function SessionPage({
               steps={investigationSteps}
               onStartInvestigation={startInvestigation}
             />
-            <AgentThoughts
-              events={visibleEvents}
-              agents={session.config?.agents}
-            />
-          </div>
-        </>
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );

@@ -2,17 +2,12 @@
 
 import { useState } from 'react';
 import type { ForensicsReport } from '@ai-exchange/types';
-import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus } from 'lucide-react';
-
-interface InvestigationStep {
-  type: 'tool_call' | 'thought' | 'hypothesis' | 'evidence';
-  content: string;
-  timestamp: number;
-}
+import { ActivityFeed, type InvestigationStep } from './investigation/ActivityFeed';
 
 interface InvestigationPanelProps {
   sessionId: string;
@@ -29,139 +24,194 @@ export function InvestigationPanel({
   steps,
   onStartInvestigation,
 }: InvestigationPanelProps) {
-  const [expanded, setExpanded] = useState(true);
+  const [activeTab, setActiveTab] = useState<'activity' | 'report'>('activity');
 
-  const getStepBadgeVariant = (type: InvestigationStep['type']) => {
-    switch (type) {
-      case 'tool_call':
-        return 'default';
-      case 'hypothesis':
-        return 'secondary';
-      case 'evidence':
-        return 'outline';
-      default:
-        return 'secondary';
-    }
-  };
-
-  const getStepClassName = (type: InvestigationStep['type']) => {
-    switch (type) {
-      case 'tool_call':
-        return 'bg-blue-900/30 text-blue-300';
-      case 'hypothesis':
-        return 'bg-yellow-900/30 text-yellow-300';
-      case 'evidence':
-        return 'bg-green-900/30 text-green-300';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getTimelineClassName = (significance: string) => {
-    switch (significance) {
-      case 'high':
-        return 'border-red-500 bg-red-900/20';
-      case 'medium':
-        return 'border-yellow-500 bg-yellow-900/20';
-      default:
-        return 'border-muted-foreground/50 bg-muted';
-    }
-  };
+  // Calculate stats for display
+  const toolCallCount = steps.filter((s) => s.type === 'tool_call').length;
+  const uniqueTools = new Set(
+    steps.filter((s) => s.type === 'tool_call').map((s) => (s as { name: string }).name)
+  );
 
   return (
-    <Card>
-      <CardHeader className="pb-0">
-        <CardTitle>Forensic Investigation</CardTitle>
-        <CardAction>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-          </Button>
-        </CardAction>
+    <Card className="flex flex-col h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            Forensic Investigation
+            {isInvestigating && (
+              <div className="animate-spin h-4 w-4 border-2 border-purple-400 border-t-transparent rounded-full" />
+            )}
+          </CardTitle>
+          {(report || steps.length > 0) && (
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'activity' | 'report')}>
+              <TabsList className="h-8">
+                <TabsTrigger value="activity" className="text-xs px-3">
+                  Activity
+                  {steps.length > 0 && (
+                    <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-xs">
+                      {toolCallCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="report" className="text-xs px-3" disabled={!report}>
+                  Report
+                  {report && <span className="ml-1.5 h-2 w-2 rounded-full bg-green-500 inline-block" />}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+        </div>
+
+        {isInvestigating && uniqueTools.size > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {Array.from(uniqueTools).map((tool) => (
+              <Badge key={tool} variant="outline" className="text-xs">
+                {tool.replace(/_/g, ' ')}
+              </Badge>
+            ))}
+          </div>
+        )}
       </CardHeader>
 
-      {expanded && (
-        <CardContent>
-          {!report && !isInvestigating && (
-            <div className="text-center py-6">
-              <p className="text-muted-foreground mb-4">
-                Run the Gemini forensics agent to analyze this market session.
-              </p>
-              <Button
-                onClick={onStartInvestigation}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                Start Investigation
-              </Button>
-            </div>
-          )}
+      <CardContent className="flex-1 min-h-0">
+        {!report && !isInvestigating && steps.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground mb-4">
+              Run the Gemini forensics agent to analyze this market session.
+            </p>
+            <Button
+              onClick={onStartInvestigation}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              Start Investigation
+            </Button>
+          </div>
+        )}
 
-          {isInvestigating && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-purple-400">
-                <div className="animate-spin h-4 w-4 border-2 border-purple-400 border-t-transparent rounded-full" />
-                <span>Investigating...</span>
-              </div>
+        {(isInvestigating || steps.length > 0) && activeTab === 'activity' && (
+          <ActivityFeed steps={steps} autoScroll={isInvestigating} />
+        )}
 
-              <ScrollArea className="h-64">
-                <div className="space-y-2">
-                  {steps.map((step, i) => (
-                    <div
-                      key={i}
-                      className={`text-sm p-2 rounded ${getStepClassName(step.type)}`}
-                    >
-                      <Badge variant={getStepBadgeVariant(step.type)} className="mr-2 capitalize">
-                        {step.type.replace('_', ' ')}
-                      </Badge>
-                      {step.content}
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          )}
-
-          {report && (
-            <div className="space-y-4">
-              <div className="bg-muted rounded p-3">
-                <h4 className="font-medium mb-2">Summary</h4>
-                <p className="text-sm text-muted-foreground">{report.summary}</p>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Timeline</h4>
-                <ScrollArea className="h-48">
-                  <div className="space-y-2">
-                    {report.timeline.map((entry, i) => (
-                      <div
-                        key={i}
-                        className={`text-sm p-2 rounded border-l-2 ${getTimelineClassName(entry.significance)}`}
-                      >
-                        <div className="text-muted-foreground text-xs">
-                          {formatTime(entry.timestamp)}
-                        </div>
-                        {entry.description}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Conclusion</h4>
-                <p className="text-sm text-muted-foreground bg-muted rounded p-3">
-                  {report.conclusion}
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      )}
+        {report && activeTab === 'report' && (
+          <ReportView report={report} />
+        )}
+      </CardContent>
     </Card>
   );
+}
+
+function ReportView({ report }: { report: ForensicsReport }) {
+  return (
+    <ScrollArea className="h-[400px]">
+      <div className="space-y-4 pr-4">
+        <div className="bg-muted rounded p-3">
+          <h4 className="font-medium mb-2">Summary</h4>
+          <p className="text-sm text-muted-foreground">{report.summary}</p>
+        </div>
+
+        {report.anomalies.length > 0 && (
+          <div>
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              Anomalies
+              <Badge variant="destructive">{report.anomalies.length}</Badge>
+            </h4>
+            <div className="space-y-2">
+              {report.anomalies.map((anomaly, i) => (
+                <div
+                  key={i}
+                  className="text-sm p-2 rounded bg-red-900/20 border border-red-500/30"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="outline" className="text-xs">
+                      {anomaly.type.replace(/_/g, ' ')}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round(anomaly.confidence * 100)}% confidence
+                    </span>
+                  </div>
+                  {anomaly.description}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {report.hypotheses.length > 0 && (
+          <div>
+            <h4 className="font-medium mb-2">Hypotheses</h4>
+            <div className="space-y-2">
+              {report.hypotheses.map((hypothesis, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-2 rounded border-l-2 ${
+                    hypothesis.status === 'supported'
+                      ? 'border-green-500 bg-green-900/20'
+                      : hypothesis.status === 'rejected'
+                      ? 'border-red-500 bg-red-900/20'
+                      : 'border-yellow-500 bg-yellow-900/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge
+                      variant={
+                        hypothesis.status === 'supported'
+                          ? 'default'
+                          : hypothesis.status === 'rejected'
+                          ? 'destructive'
+                          : 'secondary'
+                      }
+                      className="text-xs capitalize"
+                    >
+                      {hypothesis.status}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round(hypothesis.confidence * 100)}% confidence
+                    </span>
+                  </div>
+                  {hypothesis.description}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <h4 className="font-medium mb-2">Timeline</h4>
+          <div className="space-y-2">
+            {report.timeline.map((entry, i) => (
+              <div
+                key={i}
+                className={`text-sm p-2 rounded border-l-2 ${getTimelineClassName(entry.significance)}`}
+              >
+                <div className="text-muted-foreground text-xs">
+                  {formatTime(entry.timestamp)}
+                </div>
+                {entry.description}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-2">Conclusion</h4>
+          <p className="text-sm text-muted-foreground bg-muted rounded p-3">
+            {report.conclusion}
+          </p>
+        </div>
+      </div>
+    </ScrollArea>
+  );
+}
+
+function getTimelineClassName(significance: string) {
+  switch (significance) {
+    case 'high':
+      return 'border-red-500 bg-red-900/20';
+    case 'medium':
+      return 'border-yellow-500 bg-yellow-900/20';
+    default:
+      return 'border-muted-foreground/50 bg-muted';
+  }
 }
 
 function formatTime(ms: number): string {

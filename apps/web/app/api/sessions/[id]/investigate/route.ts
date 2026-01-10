@@ -34,11 +34,24 @@ export async function POST(
           const report = await investigate({
             sessionId: id,
             onStep: (step: InvestigationStep) => {
-              const data = JSON.stringify({
-                type: step.type,
-                content: step.content,
-                name: step.name,
-              });
+              let stepData: unknown = step;
+
+              // Truncate large tool results for SSE streaming
+              if (step.type === 'tool_result' && step.result) {
+                const serialized = JSON.stringify(step.result);
+                if (serialized.length > 10000) {
+                  stepData = {
+                    ...step,
+                    result: {
+                      _truncated: true,
+                      _originalLength: serialized.length,
+                      _preview: serialized.slice(0, 2000) + '...',
+                    },
+                  };
+                }
+              }
+
+              const data = JSON.stringify(stepData);
               controller.enqueue(encoder.encode(`data: ${data}\n\n`));
             },
           });

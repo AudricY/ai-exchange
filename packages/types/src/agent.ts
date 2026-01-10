@@ -2,7 +2,8 @@ export type AgentArchetype =
   | 'market_maker'
   | 'momentum'
   | 'noise'
-  | 'informed';
+  | 'informed'
+  | 'fundamentals';
 
 export interface AgentConfig {
   id: string;

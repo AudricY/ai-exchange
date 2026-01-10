@@ -23,8 +23,67 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 /**
+ * Anonymize agent IDs so forensics can't identify agent types from IDs.
+ * Maps real IDs like "informed-1" to anonymous IDs like "participant-A".
+ */
+function createAgentAnonymizer(agentIds: string[]) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const realToAnon = new Map<string, string>();
+  const anonToReal = new Map<string, string>();
+
+  // Sort for deterministic mapping, then assign anonymous IDs
+  const sorted = [...agentIds].sort();
+  sorted.forEach((realId, index) => {
+    const anonId = `participant-${alphabet[index] || index}`;
+    realToAnon.set(realId, anonId);
+    anonToReal.set(anonId, realId);
+  });
+
+  return {
+    anonymize: (realId: string) => realToAnon.get(realId) ?? realId,
+    deanonymize: (anonId: string) => anonToReal.get(anonId) ?? anonId,
+    getParticipantCount: () => realToAnon.size,
+  };
+}
+
+/**
+ * Recursively anonymize agent IDs in any object/array structure.
+ */
+function anonymizeDeep<T>(obj: T, anonymize: (id: string) => string): T {
+  if (obj === null || obj === undefined) return obj;
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => anonymizeDeep(item, anonymize)) as T;
+  }
+
+  if (typeof obj === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      // Anonymize any field that looks like an agent ID
+      if (
+        (key === 'agentId' || key === 'buyAgentId' || key === 'sellAgentId' ||
+         key === 'agent1' || key === 'agent2') &&
+        typeof value === 'string'
+      ) {
+        result[key] = anonymize(value);
+      } else if (typeof value === 'object') {
+        result[key] = anonymizeDeep(value, anonymize);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result as T;
+  }
+
+  return obj;
+}
+
+/**
  * Create session-scoped tools for forensic investigation.
  * The sessionId is bound at creation time, so the agent doesn't need to specify it.
+ *
+ * IMPORTANT: Agent identities are anonymized to prevent the forensics agent
+ * from knowing agent types upfront. It must infer behavior from observable data.
  */
 export function createSessionTools(sessionId: string) {
   // Verify session exists upfront
@@ -33,11 +92,15 @@ export function createSessionTools(sessionId: string) {
     throw new Error(`Session not found: ${sessionId}`);
   }
 
+  // Build agent ID anonymizer from config
+  const agentIds = session.config.agents.map(a => a.id);
+  const anonymizer = createAgentAnonymizer(agentIds);
+
   return {
     get_session_manifest: tool({
       description: 'Get session overview with summary statistics. Call this first to understand what happened.',
       inputSchema: z.object({}),
-      execute: async (): Promise<SessionManifest | { error: string }> => {
+      execute: async () => {
         const events = await fetchAllTapeEvents(sessionId);
         const trades = events.filter((e): e is TradeEvent => e.type === 'trade');
 
@@ -49,6 +112,7 @@ export function createSessionTools(sessionId: string) {
 
         const volumeTotal = trades.reduce((sum, t) => sum + t.trade.quantity, 0);
 
+        // Build stats using REAL IDs internally
         const agentStats: Record<string, AgentStats> = {};
         for (const event of events) {
           if (event.type === 'order_placed') {
@@ -101,6 +165,16 @@ export function createSessionTools(sessionId: string) {
           }
         }
 
+        // Convert to anonymized stats
+        const anonymizedStats: Record<string, AgentStats> = {};
+        for (const [realId, stats] of Object.entries(agentStats)) {
+          const anonId = anonymizer.anonymize(realId);
+          anonymizedStats[anonId] = {
+            ...stats,
+            agentId: anonId,
+          };
+        }
+
         const keyTimestamps: number[] = [];
         for (const event of events) {
           if (event.type === 'news') {
@@ -108,9 +182,27 @@ export function createSessionTools(sessionId: string) {
           }
         }
 
+        // Return SANITIZED session info - no config, no agent types
         return {
-          session: session!,
-          summary: { priceRange, volumeTotal, agentStats, keyTimestamps },
+          session: {
+            id: session!.id,
+            name: session!.name,
+            status: session!.status,
+            createdAt: session!.createdAt,
+            completedAt: session!.completedAt,
+            durationMs: session!.config.durationMs,
+            eventCount: session!.eventCount,
+            tradeCount: session!.tradeCount,
+            finalPrice: session!.finalPrice,
+            // NOTE: config is intentionally omitted - forensics shouldn't see agent archetypes
+          },
+          summary: {
+            priceRange,
+            volumeTotal,
+            participantCount: anonymizer.getParticipantCount(),
+            agentStats: anonymizedStats,
+            keyTimestamps,
+          },
         };
       },
     }),
@@ -121,12 +213,12 @@ export function createSessionTools(sessionId: string) {
         startTime: z.number().optional().describe('Start timestamp in ms'),
         endTime: z.number().optional().describe('End timestamp in ms'),
         eventTypes: z
-          .array(z.enum(['order_placed', 'order_cancelled', 'trade', 'book_snapshot', 'news', 'rumor', 'doc_inject', 'agent_thought']))
+          .array(z.enum(['order_placed', 'order_cancelled', 'trade', 'book_snapshot', 'news', 'rumor', 'doc_inject']))
           .optional()
           .describe('Filter by event types'),
         limit: z.number().default(50).describe('Max events to return'),
       }),
-      execute: async ({ startTime, endTime, eventTypes, limit }): Promise<{ events: TapeEvent[] }> => {
+      execute: async ({ startTime, endTime, eventTypes, limit }) => {
         const events = await fetchTapeEvents({
           sessionId,
           startTime,
@@ -134,7 +226,9 @@ export function createSessionTools(sessionId: string) {
           eventTypes: eventTypes as TapeEventType[] | undefined,
           limit,
         });
-        return { events };
+        // Anonymize all agent IDs in returned events
+        const anonymizedEvents = anonymizeDeep(events, anonymizer.anonymize);
+        return { events: anonymizedEvents };
       },
     }),
 
@@ -424,12 +518,15 @@ export function createSessionTools(sessionId: string) {
     // Investigators must infer intent from observable behavior only
 
     analyze_agent_correlation: tool({
-      description: 'Analyze trading correlations between agents to detect coordination.',
+      description: 'Analyze trading correlations between participants to detect coordination.',
       inputSchema: z.object({
-        agentIds: z.array(z.string()).optional().describe('Specific agents to compare'),
+        participantIds: z.array(z.string()).optional().describe('Specific participants to compare (e.g., participant-A, participant-B)'),
         windowMs: z.number().default(1000).describe('Time window for correlation'),
       }),
-      execute: async ({ agentIds, windowMs }) => {
+      execute: async ({ participantIds, windowMs }) => {
+        // Convert anonymized IDs back to real IDs for querying
+        const realIds = participantIds?.map(id => anonymizer.deanonymize(id));
+
         const events = await fetchTapeEvents({
           sessionId,
           eventTypes: ['trade', 'order_placed'],
@@ -441,11 +538,11 @@ export function createSessionTools(sessionId: string) {
         for (const event of events) {
           if (event.type === 'trade') {
             const trade = event.trade;
-            if (!agentIds || agentIds.includes(trade.buyAgentId)) {
+            if (!realIds || realIds.includes(trade.buyAgentId)) {
               if (!agentActivity[trade.buyAgentId]) agentActivity[trade.buyAgentId] = [];
               agentActivity[trade.buyAgentId].push({ timestamp: event.timestamp, side: 'buy' });
             }
-            if (!agentIds || agentIds.includes(trade.sellAgentId)) {
+            if (!realIds || realIds.includes(trade.sellAgentId)) {
               if (!agentActivity[trade.sellAgentId]) agentActivity[trade.sellAgentId] = [];
               agentActivity[trade.sellAgentId].push({ timestamp: event.timestamp, side: 'sell' });
             }
@@ -453,7 +550,7 @@ export function createSessionTools(sessionId: string) {
         }
 
         const agents = Object.keys(agentActivity);
-        const correlations: Array<{ agent1: string; agent2: string; correlation: number }> = [];
+        const correlations: Array<{ participant1: string; participant2: string; correlation: number }> = [];
 
         for (let i = 0; i < agents.length; i++) {
           for (let j = i + 1; j < agents.length; j++) {
@@ -474,15 +571,16 @@ export function createSessionTools(sessionId: string) {
             const total = sameDirection + oppositeDirection;
             if (total > 0) {
               correlations.push({
-                agent1: agents[i],
-                agent2: agents[j],
+                // Return anonymized IDs
+                participant1: anonymizer.anonymize(agents[i]),
+                participant2: anonymizer.anonymize(agents[j]),
                 correlation: (sameDirection - oppositeDirection) / total,
               });
             }
           }
         }
 
-        return { correlations, agentCount: agents.length };
+        return { correlations, participantCount: agents.length };
       },
     }),
 

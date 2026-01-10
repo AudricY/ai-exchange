@@ -52,12 +52,14 @@ function createConfig(duration: number, seed: number): SessionConfig {
     tickSize: 1,
     initialPrice: 100,
     agents: [
+      // Liquidity provider
       {
         id: 'mm-1',
         name: 'Market Maker 1',
         archetype: 'market_maker',
         params: { spread: 2, orderSize: 50 },
       },
+      // Random activity
       {
         id: 'noise-1',
         name: 'Noise Trader 1',
@@ -71,16 +73,43 @@ function createConfig(duration: number, seed: number): SessionConfig {
         params: { orderProbability: 0.25, priceRange: 3, orderSize: 15 },
       },
       {
-        id: 'momentum-1',
-        name: 'Momentum Trader',
-        archetype: 'momentum',
-        params: { lookbackPeriod: 10, threshold: 0.02, orderSize: 20 },
+        id: 'noise-3',
+        name: 'Noise Trader 3',
+        archetype: 'noise',
+        params: { orderProbability: 0.2, priceRange: 4, orderSize: 12 },
       },
+      // Trend followers
+      {
+        id: 'momentum-1',
+        name: 'Momentum Trader 1',
+        archetype: 'momentum',
+        params: { lookbackPeriod: 10, threshold: 0.02, orderSize: 20, maxPosition: 150 },
+      },
+      {
+        id: 'momentum-2',
+        name: 'Momentum Trader 2',
+        archetype: 'momentum',
+        params: { lookbackPeriod: 20, threshold: 0.03, orderSize: 15, maxPosition: 100 },
+      },
+      // Instant news reaction (HFT-like)
       {
         id: 'informed-1',
         name: 'Informed Trader',
         archetype: 'informed',
-        params: { orderSize: 100, reactionStrength: 1.0 },
+        params: { orderSize: 100, reactionStrength: 1.0, maxPosition: 400 },
+      },
+      // Fair value anchors (react with lag)
+      {
+        id: 'fundamentals-1',
+        name: 'Quick Analyst',
+        archetype: 'fundamentals',
+        params: { reactionLagMs: 3000, deviationThreshold: 0.03, orderSize: 40, maxPosition: 200 },
+      },
+      {
+        id: 'fundamentals-2',
+        name: 'Deep Value Investor',
+        archetype: 'fundamentals',
+        params: { reactionLagMs: 8000, deviationThreshold: 0.05, orderSize: 80, maxPosition: 400 },
       },
     ],
     newsSchedule: [

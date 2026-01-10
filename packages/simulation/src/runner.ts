@@ -26,6 +26,7 @@ import {
   MarketMaker,
   MomentumTrader,
   InformedTrader,
+  FundamentalsTrader,
 } from './agents/index.js';
 
 export interface SimulationRunnerOptions {
@@ -163,6 +164,8 @@ export class SimulationRunner {
         return new MomentumTrader(config, agentRng);
       case 'informed':
         return new InformedTrader(config, agentRng);
+      case 'fundamentals':
+        return new FundamentalsTrader(config, agentRng);
       default:
         console.warn(`Unknown agent archetype: ${config.archetype}`);
         return null;

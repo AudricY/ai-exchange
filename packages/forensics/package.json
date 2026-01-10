@@ -1,0 +1,27 @@
+{
+  "name": "@ai-exchange/forensics",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@ai-exchange/types": "workspace:*",
+    "@ai-exchange/db": "workspace:*",
+    "@ai-sdk/google": "^3.0.6",
+    "ai": "^4.3.16",
+    "zod": "^3.25.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,81 @@
+-- Sessions table
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  config TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  completed_at TEXT,
+  event_count INTEGER DEFAULT 0,
+  trade_count INTEGER DEFAULT 0,
+  final_price REAL
+);
+
+-- Tape event index for fast range queries
+CREATE TABLE IF NOT EXISTS tape_index (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  event_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  timestamp INTEGER NOT NULL,
+  sequence INTEGER NOT NULL,
+  file_offset INTEGER NOT NULL,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tape_session_time ON tape_index(session_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_tape_session_type ON tape_index(session_id, event_type);
+CREATE INDEX IF NOT EXISTS idx_tape_event_id ON tape_index(event_id);
+
+-- OHLCV aggregates
+CREATE TABLE IF NOT EXISTS ohlcv (
+  session_id TEXT NOT NULL,
+  interval_start INTEGER NOT NULL,
+  resolution INTEGER NOT NULL,
+  open REAL NOT NULL,
+  high REAL NOT NULL,
+  low REAL NOT NULL,
+  close REAL NOT NULL,
+  volume REAL NOT NULL,
+  trade_count INTEGER NOT NULL,
+  PRIMARY KEY (session_id, resolution, interval_start),
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+-- Book snapshots
+CREATE TABLE IF NOT EXISTS book_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  timestamp INTEGER NOT NULL,
+  snapshot TEXT NOT NULL,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_snapshots_session_time ON book_snapshots(session_id, timestamp);
+
+-- Documents
+CREATE TABLE IF NOT EXISTS documents (
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  inject_timestamp INTEGER NOT NULL,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+-- Document chunks
+CREATE TABLE IF NOT EXISTS doc_chunks (
+  id TEXT PRIMARY KEY,
+  doc_id TEXT NOT NULL,
+  chunk_index INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  FOREIGN KEY (doc_id) REFERENCES documents(id)
+);
+
+-- Reports
+CREATE TABLE IF NOT EXISTS reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL UNIQUE,
+  report TEXT NOT NULL,
+  generated_at TEXT NOT NULL,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);

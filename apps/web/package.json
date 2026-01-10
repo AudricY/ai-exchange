@@ -1,0 +1,34 @@
+{
+  "name": "@ai-exchange/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ai-exchange/types": "workspace:*",
+    "@ai-exchange/db": "workspace:*",
+    "@ai-exchange/simulation": "workspace:*",
+    "@ai-exchange/forensics": "workspace:*",
+    "@ai-sdk/google": "^3.0.6",
+    "ai": "^4.3.16",
+    "clsx": "^2.1.1",
+    "lightweight-charts": "^5.0.0",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.8",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "tailwindcss": "^4.1.8",
+    "typescript": "^5.9.3"
+  }
+}

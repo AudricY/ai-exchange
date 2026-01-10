@@ -13,7 +13,7 @@ import { Chart } from '@/components/Chart';
 import { OrderBook } from '@/components/OrderBook';
 import { TradesFeed } from '@/components/TradesFeed';
 import { ReplayScrubber } from '@/components/ReplayScrubber';
-import { InvestigationPanel, type InvestigationServerStatus } from '@/components/InvestigationPanel';
+import { InvestigationPanel, type InvestigationServerStatus, type InvestigationStats } from '@/components/InvestigationPanel';
 import { type InvestigationStep } from '@/components/investigation/ActivityFeed';
 import { NewsFeed } from '@/components/NewsFeed';
 import { OrderFeed } from '@/components/OrderFeed';
@@ -40,6 +40,7 @@ export default function SessionPage({
   const [investigationSteps, setInvestigationSteps] = useState<InvestigationStep[]>([]);
   const [serverStatus, setServerStatus] = useState<InvestigationServerStatus>('idle');
   const [serverStartedAt, setServerStartedAt] = useState<string | null>(null);
+  const [investigationStats, setInvestigationStats] = useState<InvestigationStats | null>(null);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -225,6 +226,8 @@ export default function SessionPage({
             if (data.type === 'report') {
               setReport(data.report);
               setServerStatus('completed');
+            } else if (data.type === 'stats') {
+              setInvestigationStats(data.stats);
             } else if (data.type === 'error') {
               setServerStatus('failed');
             } else if (data.type === 'tool_call' || data.type === 'tool_result' || data.type === 'thinking') {
@@ -365,6 +368,7 @@ export default function SessionPage({
               onStartInvestigation={startInvestigation}
               serverStatus={serverStatus}
               startedAt={serverStartedAt}
+              stats={investigationStats}
             />
           </TabsContent>
         </Tabs>

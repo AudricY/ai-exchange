@@ -15,9 +15,10 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@ai-exchange/types": "workspace:*",
     "@ai-exchange/db": "workspace:*",
+    "@ai-exchange/types": "workspace:*",
     "@ai-sdk/google": "^3.0.6",
+    "@napi-rs/canvas": "^0.1.88",
     "ai": "^6.0.26",
     "chart.js": "^4.4.0",
     "chartjs-node-canvas": "^4.1.6",

@@ -16,8 +16,11 @@ import type {
   ForensicsReport,
   OrderBookSnapshot,
 } from '@ai-exchange/types';
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
-import type { ChartConfiguration } from 'chart.js';
+import { createCanvas } from '@napi-rs/canvas';
+import { Chart, registerables } from 'chart.js';
+
+// Register all Chart.js components
+Chart.register(...registerables);
 
 /**
  * Create session-scoped tools for forensic investigation.
@@ -136,15 +139,69 @@ export function createSessionTools(sessionId: string) {
     }),
 
     get_ohlcv: tool({
-      description: 'Get OHLCV candlestick data for price analysis.',
+      description: 'Get OHLCV candlestick data for price analysis. Data is stored at 1000ms resolution and will be aggregated to your requested resolution.',
       inputSchema: z.object({
-        resolution: z.number().default(1000).describe('Candle width in ms'),
+        resolution: z.number().default(1000).describe('Candle width in ms (will aggregate from 1000ms base)'),
         startTime: z.number().optional().describe('Start timestamp'),
         endTime: z.number().optional().describe('End timestamp'),
       }),
       execute: async ({ resolution, startTime, endTime }) => {
-        const bars = getOHLCV(sessionId, resolution, startTime, endTime);
-        return { bars, count: bars.length };
+        // Always fetch from base 1000ms resolution and aggregate if needed
+        const baseBars = getOHLCV(sessionId, 1000, startTime, endTime);
+
+        if (baseBars.length === 0) {
+          return { bars: [], count: 0, note: 'No OHLCV data available for this session' };
+        }
+
+        // If requesting base resolution, return as-is
+        if (resolution <= 1000) {
+          return { bars: baseBars, count: baseBars.length };
+        }
+
+        // Aggregate bars to requested resolution
+        const aggregatedBars: typeof baseBars = [];
+        let currentBucket: typeof baseBars = [];
+        let bucketStart = Math.floor(baseBars[0].intervalStart / resolution) * resolution;
+
+        for (const bar of baseBars) {
+          const barBucket = Math.floor(bar.intervalStart / resolution) * resolution;
+
+          if (barBucket !== bucketStart && currentBucket.length > 0) {
+            // Emit aggregated bar
+            aggregatedBars.push({
+              sessionId: currentBucket[0].sessionId,
+              intervalStart: bucketStart,
+              resolution: resolution,
+              open: currentBucket[0].open,
+              high: Math.max(...currentBucket.map(b => b.high)),
+              low: Math.min(...currentBucket.map(b => b.low)),
+              close: currentBucket[currentBucket.length - 1].close,
+              volume: currentBucket.reduce((sum, b) => sum + b.volume, 0),
+              tradeCount: currentBucket.reduce((sum, b) => sum + b.tradeCount, 0),
+            });
+            currentBucket = [];
+            bucketStart = barBucket;
+          }
+
+          currentBucket.push(bar);
+        }
+
+        // Emit final bucket
+        if (currentBucket.length > 0) {
+          aggregatedBars.push({
+            sessionId: currentBucket[0].sessionId,
+            intervalStart: bucketStart,
+            resolution: resolution,
+            open: currentBucket[0].open,
+            high: Math.max(...currentBucket.map(b => b.high)),
+            low: Math.min(...currentBucket.map(b => b.low)),
+            close: currentBucket[currentBucket.length - 1].close,
+            volume: currentBucket.reduce((sum, b) => sum + b.volume, 0),
+            tradeCount: currentBucket.reduce((sum, b) => sum + b.tradeCount, 0),
+          });
+        }
+
+        return { bars: aggregatedBars, count: aggregatedBars.length };
       },
     }),
 
@@ -205,75 +262,161 @@ export function createSessionTools(sessionId: string) {
     }),
 
     render_chart: tool({
-      description: 'Render a price chart for visual analysis. Returns base64 PNG image.',
+      description: 'Render a price chart for visual analysis. Returns base64 PNG image that can be analyzed visually.',
       inputSchema: z.object({
         startTime: z.number().optional().describe('Start timestamp'),
         endTime: z.number().optional().describe('End timestamp'),
         resolution: z.number().default(1000).describe('Candle width in ms'),
-        chartType: z.enum(['candlestick', 'line', 'volume']).default('candlestick'),
+        chartType: z.enum(['candlestick', 'line', 'volume']).default('line'),
         width: z.number().default(800),
         height: z.number().default(400),
       }),
       execute: async ({ startTime, endTime, resolution, chartType, width, height }) => {
-        const bars = getOHLCV(sessionId, resolution, startTime, endTime);
-        if (bars.length === 0) {
-          return { error: 'No data for chart', image: null };
-        }
+        try {
+          const bars = getOHLCV(sessionId, resolution, startTime, endTime);
+          if (bars.length === 0) {
+            return { error: 'No OHLCV data available for chart', image: null };
+          }
 
-        const chartJSNodeCanvas = new ChartJSNodeCanvas({
-          width,
-          height,
-          backgroundColour: 'white',
-        });
+          // Create canvas using @napi-rs/canvas (no Cairo dependency)
+          const canvas = createCanvas(width, height);
+          const ctx = canvas.getContext('2d');
 
-        let config: ChartConfiguration;
-        if (chartType === 'line') {
-          config = {
-            type: 'line',
+          // Fill white background
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, width, height);
+
+          // Create Chart.js chart
+          const labels = bars.map((b) => {
+            const seconds = Math.floor(b.intervalStart / 1000);
+            return `${seconds}s`;
+          });
+
+          let chartConfig: {
+            type: 'line' | 'bar';
             data: {
-              labels: bars.map((b) => `${b.intervalStart}ms`),
-              datasets: [{
-                label: 'Close Price',
-                data: bars.map((b) => b.close),
-                borderColor: 'blue',
-                fill: false,
-              }],
-            },
+              labels: string[];
+              datasets: Array<{
+                label: string;
+                data: number[];
+                borderColor?: string;
+                backgroundColor?: string | string[];
+                fill?: boolean;
+                tension?: number;
+              }>;
+            };
+            options: object;
           };
-        } else if (chartType === 'volume') {
-          config = {
-            type: 'bar',
-            data: {
-              labels: bars.map((b) => `${b.intervalStart}ms`),
-              datasets: [{
-                label: 'Volume',
-                data: bars.map((b) => b.volume),
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-              }],
-            },
-          };
-        } else {
-          config = {
-            type: 'bar',
-            data: {
-              labels: bars.map((b) => `${b.intervalStart}ms`),
-              datasets: [
-                {
-                  label: 'Price Range',
-                  data: bars.map((b) => [b.low, b.high]),
-                  backgroundColor: bars.map((b) => (b.close >= b.open ? 'green' : 'red')),
+
+          if (chartType === 'line') {
+            chartConfig = {
+              type: 'line',
+              data: {
+                labels,
+                datasets: [{
+                  label: 'Close Price',
+                  data: bars.map((b) => b.close),
+                  borderColor: 'rgb(75, 192, 192)',
+                  fill: false,
+                  tension: 0.1,
+                }],
+              },
+              options: {
+                responsive: false,
+                animation: false,
+                plugins: {
+                  title: { display: true, text: 'Price Chart' },
                 },
-              ],
+                scales: {
+                  y: { beginAtZero: false },
+                },
+              },
+            };
+          } else if (chartType === 'volume') {
+            chartConfig = {
+              type: 'bar',
+              data: {
+                labels,
+                datasets: [{
+                  label: 'Volume',
+                  data: bars.map((b) => b.volume),
+                  backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                }],
+              },
+              options: {
+                responsive: false,
+                animation: false,
+                plugins: {
+                  title: { display: true, text: 'Volume Chart' },
+                },
+              },
+            };
+          } else {
+            // Candlestick approximation using OHLC data
+            // Show as line chart with high/low range shading
+            chartConfig = {
+              type: 'line',
+              data: {
+                labels,
+                datasets: [
+                  {
+                    label: 'High',
+                    data: bars.map((b) => b.high),
+                    borderColor: 'rgba(75, 192, 192, 0.5)',
+                    fill: false,
+                  },
+                  {
+                    label: 'Close',
+                    data: bars.map((b) => b.close),
+                    borderColor: bars.map((b) => b.close >= b.open ? 'green' : 'red').join(',') ? 'rgb(0, 128, 0)' : 'rgb(255, 0, 0)',
+                    fill: false,
+                    tension: 0,
+                  },
+                  {
+                    label: 'Low',
+                    data: bars.map((b) => b.low),
+                    borderColor: 'rgba(255, 99, 132, 0.5)',
+                    fill: false,
+                  },
+                ],
+              },
+              options: {
+                responsive: false,
+                animation: false,
+                plugins: {
+                  title: { display: true, text: 'OHLC Chart (High/Close/Low)' },
+                },
+                scales: {
+                  y: { beginAtZero: false },
+                },
+              },
+            };
+          }
+
+          // Render chart to canvas
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          new Chart(ctx as any, chartConfig);
+
+          // Export to PNG buffer
+          const buffer = canvas.toBuffer('image/png');
+
+          return {
+            image: buffer.toString('base64'),
+            mimeType: 'image/png',
+            barCount: bars.length,
+            priceRange: {
+              low: Math.min(...bars.map(b => b.low)),
+              high: Math.max(...bars.map(b => b.high)),
             },
           };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          return {
+            error: `Chart rendering failed: ${errorMessage}`,
+            image: null,
+            suggestion: 'Use get_ohlcv tool for raw price data instead',
+          };
         }
-
-        const imageBuffer = await chartJSNodeCanvas.renderToBuffer(config);
-        return {
-          image: imageBuffer.toString('base64'),
-          mimeType: 'image/png',
-          barCount: bars.length,
-        };
       },
     }),
 

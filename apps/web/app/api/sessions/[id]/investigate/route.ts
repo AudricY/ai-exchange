@@ -80,6 +80,17 @@ export async function POST(
             const data = JSON.stringify({ type: 'report', report: result.report });
             controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           }
+
+          // Send stats at the end
+          const statsData = JSON.stringify({
+            type: 'stats',
+            stats: {
+              stepCount: result.stepCount,
+              elapsedMs: result.elapsedMs,
+              usage: result.usage,
+            },
+          });
+          controller.enqueue(encoder.encode(`data: ${statsData}\n\n`));
         } catch (error) {
           console.error('Investigation error:', error);
           // Set status to failed

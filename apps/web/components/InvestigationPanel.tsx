@@ -11,6 +11,16 @@ import { ActivityFeed, type InvestigationStep } from './investigation/ActivityFe
 
 export type InvestigationServerStatus = 'idle' | 'running' | 'completed' | 'failed';
 
+export interface InvestigationStats {
+  stepCount: number;
+  elapsedMs: number;
+  usage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+}
+
 interface InvestigationPanelProps {
   sessionId: string;
   report: ForensicsReport | null;
@@ -19,6 +29,7 @@ interface InvestigationPanelProps {
   onStartInvestigation: () => void;
   serverStatus?: InvestigationServerStatus;
   startedAt?: string | null;
+  stats?: InvestigationStats | null;
 }
 
 export function InvestigationPanel({
@@ -29,6 +40,7 @@ export function InvestigationPanel({
   onStartInvestigation,
   serverStatus = 'idle',
   startedAt,
+  stats,
 }: InvestigationPanelProps) {
   const [activeTab, setActiveTab] = useState<'activity' | 'report'>('activity');
 
@@ -78,6 +90,40 @@ export function InvestigationPanel({
                 {tool.replace(/_/g, ' ')}
               </Badge>
             ))}
+          </div>
+        )}
+
+        {stats && (
+          <div className="mt-3 pt-3 border-t border-border">
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-lg font-semibold text-foreground">
+                  {formatDuration(stats.elapsedMs)}
+                </div>
+                <div className="text-xs text-muted-foreground">Duration</div>
+              </div>
+              <div>
+                <div className="text-lg font-semibold text-foreground">
+                  {stats.stepCount}
+                </div>
+                <div className="text-xs text-muted-foreground">Steps</div>
+              </div>
+              <div>
+                <div className="text-lg font-semibold text-foreground">
+                  {toolCallCount}
+                </div>
+                <div className="text-xs text-muted-foreground">Tool Calls</div>
+              </div>
+              <div>
+                <div className="text-lg font-semibold text-foreground">
+                  {formatTokens(stats.usage.totalTokens)}
+                </div>
+                <div className="text-xs text-muted-foreground">Tokens</div>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground text-center">
+              {stats.usage.promptTokens.toLocaleString()} prompt + {stats.usage.completionTokens.toLocaleString()} completion
+            </div>
           </div>
         )}
       </CardHeader>
@@ -248,4 +294,29 @@ function formatTime(ms: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function formatDuration(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  if (seconds < 60) {
+    return `${seconds}s`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  if (minutes < 60) {
+    return `${minutes}m ${remainingSeconds}s`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours}h ${remainingMinutes}m`;
+}
+
+function formatTokens(tokens: number): string {
+  if (tokens < 1000) {
+    return tokens.toString();
+  }
+  if (tokens < 1000000) {
+    return `${(tokens / 1000).toFixed(1)}k`;
+  }
+  return `${(tokens / 1000000).toFixed(2)}M`;
 }

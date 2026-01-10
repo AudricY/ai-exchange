@@ -62,11 +62,35 @@ function formatResultPreview(result: unknown): string {
     return `[Truncated: ${Math.round(truncated._originalLength / 1024)}KB] ${truncated._preview}`;
   }
 
+  // Don't show base64 image data as text
+  if (typeof result === 'object' && result !== null) {
+    const r = result as Record<string, unknown>;
+    if (typeof r.image === 'string' && r.image.length > 100) {
+      const { image, ...rest } = r;
+      return JSON.stringify({ ...rest, image: `[base64 image, ${Math.round(image.length / 1024)}KB]` }, null, 2);
+    }
+  }
+
   const str = JSON.stringify(result, null, 2);
   if (str.length > 500) {
     return str.slice(0, 500) + '...';
   }
   return str;
+}
+
+// Detect if result contains a renderable image
+function getImageFromResult(result: unknown): { image: string; mimeType: string } | null {
+  if (typeof result === 'object' && result !== null) {
+    const r = result as Record<string, unknown>;
+    if (
+      typeof r.image === 'string' &&
+      r.image.length > 100 &&
+      (r.mimeType === 'image/png' || r.mimeType === 'image/jpeg')
+    ) {
+      return { image: r.image, mimeType: r.mimeType as string };
+    }
+  }
+  return null;
 }
 
 export function ToolCallCard({ toolCall, toolResult }: ToolCallCardProps) {
@@ -113,9 +137,28 @@ export function ToolCallCard({ toolCall, toolResult }: ToolCallCardProps) {
           {toolResult && (
             <div>
               <div className="text-xs font-medium text-muted-foreground mb-1">Result</div>
-              <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto max-h-64">
-                {formatResultPreview(toolResult.result)}
-              </pre>
+              {(() => {
+                const imageData = getImageFromResult(toolResult.result);
+                if (imageData) {
+                  return (
+                    <div className="space-y-2">
+                      <img
+                        src={`data:${imageData.mimeType};base64,${imageData.image}`}
+                        alt="Chart visualization"
+                        className="max-w-full rounded border border-border"
+                      />
+                      <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto max-h-32">
+                        {formatResultPreview(toolResult.result)}
+                      </pre>
+                    </div>
+                  );
+                }
+                return (
+                  <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto max-h-64">
+                    {formatResultPreview(toolResult.result)}
+                  </pre>
+                );
+              })()}
             </div>
           )}
 

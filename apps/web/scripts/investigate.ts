@@ -4,6 +4,7 @@
  * Usage: pnpm investigate <sessionId> [options]
  */
 
+import 'dotenv/config';
 import { investigate, type InvestigationStep, type InvestigationResult } from '@ai-exchange/forensics';
 import { getSession, closeDb } from '@ai-exchange/db';
 import { mkdirSync, appendFileSync, writeFileSync } from 'fs';

@@ -38,6 +38,8 @@ export default function SessionPage({
   const [running, setRunning] = useState(false);
   const [investigating, setInvestigating] = useState(false);
   const [investigationSteps, setInvestigationSteps] = useState<InvestigationStep[]>([]);
+  const [serverStatus, setServerStatus] = useState<InvestigationServerStatus>('idle');
+  const [serverStartedAt, setServerStartedAt] = useState<string | null>(null);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -61,12 +63,12 @@ export default function SessionPage({
       fetchOHLCV();
       fetchEvents();
       fetchLatestSnapshot();
-      fetchExistingReport();
+      fetchInvestigationStatus();
     }
   }, [session?.status]);
 
-  // Fetch existing report if available
-  async function fetchExistingReport() {
+  // Fetch existing report and investigation status
+  async function fetchInvestigationStatus() {
     try {
       const res = await fetch(`/api/sessions/${id}/investigate`);
       if (res.ok) {
@@ -74,9 +76,13 @@ export default function SessionPage({
         if (data.report) {
           setReport(data.report);
         }
+        if (data.status) {
+          setServerStatus(data.status);
+          setServerStartedAt(data.startedAt ?? null);
+        }
       }
     } catch {
-      // Silently fail - report just won't be pre-loaded
+      // Silently fail - status just won't be fetched
     }
   }
 
@@ -176,11 +182,30 @@ export default function SessionPage({
   const startInvestigation = useCallback(async () => {
     setInvestigating(true);
     setInvestigationSteps([]);
+    setServerStatus('running');
 
     try {
       const res = await fetch(`/api/sessions/${id}/investigate`, {
         method: 'POST',
       });
+
+      // Check for JSON response (cached report or already_running)
+      const contentType = res.headers.get('content-type');
+      if (contentType?.includes('application/json')) {
+        const data = await res.json();
+        if (data.status === 'already_running') {
+          setServerStatus('running');
+          setServerStartedAt(data.startedAt);
+          setInvestigating(false);
+          return;
+        }
+        if (data.report) {
+          setReport(data.report);
+          setServerStatus('completed');
+          setInvestigating(false);
+          return;
+        }
+      }
 
       if (!res.body) throw new Error('No response body');
 
@@ -199,6 +224,9 @@ export default function SessionPage({
             const data = JSON.parse(line.slice(6));
             if (data.type === 'report') {
               setReport(data.report);
+              setServerStatus('completed');
+            } else if (data.type === 'error') {
+              setServerStatus('failed');
             } else if (data.type === 'tool_call' || data.type === 'tool_result' || data.type === 'thinking') {
               // New step format - pass through directly
               setInvestigationSteps((prev) => [...prev, data as InvestigationStep]);
@@ -210,6 +238,7 @@ export default function SessionPage({
       }
     } catch (error) {
       console.error('Investigation failed:', error);
+      setServerStatus('failed');
     } finally {
       setInvestigating(false);
     }
@@ -334,6 +363,8 @@ export default function SessionPage({
               isInvestigating={investigating}
               steps={investigationSteps}
               onStartInvestigation={startInvestigation}
+              serverStatus={serverStatus}
+              startedAt={serverStartedAt}
             />
           </TabsContent>
         </Tabs>

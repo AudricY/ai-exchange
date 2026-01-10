@@ -6,7 +6,7 @@ import type { TapeEvent } from '@ai-exchange/types';
 export const fetchTape = tool({
   description:
     'Fetch tape events within a time window or by event type. Use this to examine specific periods of market activity.',
-  parameters: z.object({
+  inputSchema: z.object({
     sessionId: z.string().describe('The session ID'),
     startTime: z
       .number()
@@ -36,6 +36,12 @@ export const fetchTape = tool({
     endTime,
     eventTypes,
     limit,
+  }: {
+    sessionId: string;
+    startTime?: number;
+    endTime?: number;
+    eventTypes?: string[];
+    limit: number;
   }): Promise<{ events: TapeEvent[] }> => {
     const events = await fetchTapeEvents({
       sessionId,

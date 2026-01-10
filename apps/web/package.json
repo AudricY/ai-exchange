@@ -16,7 +16,7 @@
     "@ai-exchange/forensics": "workspace:*",
     "better-sqlite3": "^11.8.1",
     "@ai-sdk/google": "^3.0.6",
-    "ai": "^4.3.16",
+    "ai": "^6.0.26",
     "clsx": "^2.1.1",
     "lightweight-charts": "^5.0.0",
     "next": "^15.3.3",

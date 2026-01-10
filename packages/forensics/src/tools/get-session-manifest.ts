@@ -6,10 +6,10 @@ import type { SessionManifest, TradeEvent, AgentStats } from '@ai-exchange/types
 export const getSessionManifest = tool({
   description:
     'Get the session manifest with summary statistics. Call this first to understand the session.',
-  parameters: z.object({
+  inputSchema: z.object({
     sessionId: z.string().describe('The session ID to get manifest for'),
   }),
-  execute: async ({ sessionId }): Promise<SessionManifest | { error: string }> => {
+  execute: async ({ sessionId }: { sessionId: string }): Promise<SessionManifest | { error: string }> => {
     const session = getSession(sessionId);
     if (!session) {
       return { error: 'Session not found' };

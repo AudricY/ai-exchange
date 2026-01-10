@@ -18,7 +18,7 @@ interface MicrostructureMetrics {
 export const computeMicrostructureMetrics = tool({
   description:
     'Compute microstructure metrics for a time window: spread, depth, imbalance, volatility, trade statistics.',
-  parameters: z.object({
+  inputSchema: z.object({
     sessionId: z.string().describe('The session ID'),
     startTime: z.number().describe('Start timestamp'),
     endTime: z.number().describe('End timestamp'),
@@ -27,6 +27,10 @@ export const computeMicrostructureMetrics = tool({
     sessionId,
     startTime,
     endTime,
+  }: {
+    sessionId: string;
+    startTime: number;
+    endTime: number;
   }): Promise<MicrostructureMetrics> => {
     // Get trades in window
     const events = await fetchTapeEvents({

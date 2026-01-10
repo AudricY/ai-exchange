@@ -18,7 +18,7 @@
     "@ai-exchange/types": "workspace:*",
     "@ai-exchange/db": "workspace:*",
     "@ai-sdk/google": "^3.0.6",
-    "ai": "^4.3.16",
+    "ai": "^6.0.26",
     "zod": "^3.25.3"
   },
   "devDependencies": {

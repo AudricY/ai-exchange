@@ -6,7 +6,7 @@ import type { OrderBookSnapshot } from '@ai-exchange/types';
 export const getBookSnapshots = tool({
   description:
     'Get order book snapshots to analyze market depth and liquidity at specific times.',
-  parameters: z.object({
+  inputSchema: z.object({
     sessionId: z.string().describe('The session ID'),
     at: z
       .number()
@@ -22,6 +22,12 @@ export const getBookSnapshots = tool({
     startTime,
     endTime,
     limit,
+  }: {
+    sessionId: string;
+    at?: number;
+    startTime?: number;
+    endTime?: number;
+    limit: number;
   }): Promise<{ snapshots: OrderBookSnapshot[] }> => {
     if (at !== undefined) {
       const snapshot = getSnapshotAt(sessionId, at);

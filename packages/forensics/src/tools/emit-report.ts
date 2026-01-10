@@ -48,7 +48,7 @@ const AnomalyFlagSchema = z.object({
 export const emitReport = tool({
   description:
     'Emit the final forensics report with timeline, hypotheses, causal chain, and conclusions. Call this once investigation is complete.',
-  parameters: z.object({
+  inputSchema: z.object({
     sessionId: z.string(),
     summary: z.string().describe('Brief summary of what happened'),
     timeline: z.array(TimelineEntrySchema).describe('Key events in order'),
@@ -67,6 +67,14 @@ export const emitReport = tool({
     causalChain,
     anomalies,
     conclusion,
+  }: {
+    sessionId: string;
+    summary: string;
+    timeline: Array<{ timestamp: number; description: string; significance: 'low' | 'medium' | 'high'; evidenceRefs: Array<{ eventId?: string; docChunkId?: string; description: string; timestamp?: number }> }>;
+    hypotheses: Array<{ id: string; description: string; status: 'investigating' | 'supported' | 'rejected'; confidence: number; supportingEvidence: Array<{ eventId?: string; docChunkId?: string; description: string; timestamp?: number }>; contradictingEvidence: Array<{ eventId?: string; docChunkId?: string; description: string; timestamp?: number }> }>;
+    causalChain: Array<{ cause: { eventId?: string; docChunkId?: string; description: string; timestamp?: number }; effect: { eventId?: string; docChunkId?: string; description: string; timestamp?: number }; explanation: string }>;
+    anomalies: Array<{ type: 'spoofing' | 'momentum_ignition' | 'wash_trading' | 'rumor_cascade' | 'other'; description: string; evidence: Array<{ eventId?: string; docChunkId?: string; description: string; timestamp?: number }>; confidence: number }>;
+    conclusion: string;
   }): Promise<{ success: boolean; report: ForensicsReport }> => {
     const report: ForensicsReport = {
       sessionId,

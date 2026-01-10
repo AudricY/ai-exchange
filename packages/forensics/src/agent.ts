@@ -1,4 +1,4 @@
-import { generateText, streamText, type LanguageModelV1 } from 'ai';
+import { generateText, streamText, stepCountIs } from 'ai';
 import { google } from '@ai-sdk/google';
 import {
   getSessionManifest,
@@ -42,11 +42,11 @@ export async function investigate(
 
   try {
     const result = await generateText({
-      model: google('gemini-2.0-flash') as unknown as LanguageModelV1,
+      model: google('gemini-2.0-flash'),
       system: SYSTEM_PROMPT,
       prompt: `${INVESTIGATION_PROMPT}\n\nSession ID: ${sessionId}`,
       tools,
-      maxSteps,
+      stopWhen: stepCountIs(maxSteps),
       onStepFinish: ({ text, toolCalls, toolResults }) => {
         if (text && onStep) {
           onStep({ type: 'text', content: text });
@@ -57,7 +57,7 @@ export async function investigate(
             onStep({
               type: 'tool_call',
               name: call.toolName,
-              content: `${call.toolName}(${JSON.stringify(call.args).slice(0, 100)}...)`,
+              content: `${call.toolName}(${JSON.stringify(call.input).slice(0, 100)}...)`,
             });
           }
         }
@@ -67,8 +67,8 @@ export async function investigate(
     // Extract report from tool results
     for (const step of result.steps) {
       for (const toolResult of step.toolResults) {
-        if (toolResult.toolName === 'emit_report' && toolResult.result) {
-          const resultData = toolResult.result as { success: boolean; report: ForensicsReport };
+        if (toolResult.toolName === 'emit_report' && toolResult.output) {
+          const resultData = toolResult.output as { success: boolean; report: ForensicsReport };
           if (resultData.success && resultData.report) {
             return resultData.report;
           }
@@ -92,18 +92,18 @@ export async function investigateStream(
   const { sessionId, maxSteps = 15 } = options;
 
   const result = streamText({
-    model: google('gemini-2.0-flash') as unknown as LanguageModelV1,
+    model: google('gemini-2.0-flash'),
     system: SYSTEM_PROMPT,
     prompt: `${INVESTIGATION_PROMPT}\n\nSession ID: ${sessionId}`,
     tools,
-    maxSteps,
+    stopWhen: stepCountIs(maxSteps),
   });
 
   return {
     async *[Symbol.asyncIterator]() {
       for await (const part of result.fullStream) {
         if (part.type === 'text-delta') {
-          yield { type: 'text' as const, content: part.textDelta };
+          yield { type: 'text' as const, content: part.text };
         } else if (part.type === 'tool-call') {
           yield {
             type: 'tool_call' as const,

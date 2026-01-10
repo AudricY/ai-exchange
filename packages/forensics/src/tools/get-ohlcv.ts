@@ -6,7 +6,7 @@ import type { OHLCVBar } from '@ai-exchange/types';
 export const getOHLCVData = tool({
   description:
     'Get OHLCV (candlestick) data for price analysis. Use to understand price movements over time.',
-  parameters: z.object({
+  inputSchema: z.object({
     sessionId: z.string().describe('The session ID'),
     resolution: z
       .number()
@@ -20,6 +20,11 @@ export const getOHLCVData = tool({
     resolution,
     startTime,
     endTime,
+  }: {
+    sessionId: string;
+    resolution: number;
+    startTime?: number;
+    endTime?: number;
   }): Promise<{ bars: OHLCVBar[] }> => {
     const bars = getOHLCV(sessionId, resolution, startTime, endTime);
     return { bars };

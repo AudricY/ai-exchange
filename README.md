@@ -13,18 +13,12 @@ A synthetic market simulator with AI-powered forensic analysis. Generates realis
 ## Quick Start
 
 ```bash
-pnpm install
-pnpm build
-
-# Run a simulation
-pnpm simulate --name "Demo Session" --duration 60000
-
-# Investigate a session (requires GOOGLE_GENERATIVE_AI_API_KEY)
-pnpm investigate <sessionId>
-
-# View in browser
+pnpm i
+cp .env.example .env  # Add your GOOGLE_GENERATIVE_AI_API_KEY
 pnpm dev
 ```
+
+Create sessions and run investigations from the browser at `localhost:3000`.
 
 ## Stack
 

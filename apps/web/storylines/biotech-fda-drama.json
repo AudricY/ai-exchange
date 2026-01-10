@@ -1,146 +1,128 @@
 {
-  "id": "storyline-1768031353351",
-  "durationMs": 1200000,
+  "id": "storyline-1768034523125",
+  "durationMs": 21600000,
   "theme": "biotech company awaiting FDA approval",
-  "companyName": "AxonGene Biotics",
-  "companyDescription": "AxonGene Biotics is a clinical-stage biopharmaceutical company focused on developing proprietary gene-silencing therapies for ultra-rare neurodegenerative disorders, with its lead candidate AX-104 currently under regulatory review.",
+  "companyName": "LyraGen Therapeutics",
+  "companyDescription": "A clinical-stage biopharmaceutical company focused on developing novel RNA-based therapies for rare neurological disorders, currently seeking approval for their lead candidate LYR-101.",
   "initialPrice": 42.5,
   "events": [
     {
       "timestamp": 0,
-      "headline": "FDA completes technical audit of AX-104 manufacturing site",
-      "content": "Regulatory inspectors concluded a five-day pre-approval inspection of the primary production facility with no Form 483 observations issued.",
+      "headline": "LyraGen completes submission of final clinical module to regulatory body",
+      "content": "LyraGen Therapeutics has finalized the submission of its New Drug Application (NDA) for LYR-101, marking the start of the official review clock for the treatment of Z-Alpha Syndrome.",
       "source": "Reuters",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 100000,
-      "headline": "Metropolis City Council approves new downtown park project",
-      "content": "The city planning board has finalized the budget for the upcoming 'Green Heart' initiative scheduled for next spring.",
-      "source": "Local Gazette",
+      "timestamp": 2400000,
+      "headline": "City Marathon to result in weekend road closures",
+      "content": "Local authorities have announced significant traffic diversions for the upcoming metropolitan marathon scheduled for this Saturday.",
+      "source": "Local News Network",
       "sentiment": "neutral",
       "category": "noise",
       "magnitude": "low"
     },
     {
-      "timestamp": 250000,
-      "headline": "Phase 3 extension data updated for long-term safety profile",
-      "content": "Recent updates to the AX-104 long-term monitoring database showed elevated liver enzyme levels in two additional patients during the 24-month follow-up window.",
+      "timestamp": 5200000,
+      "headline": "LyraGen hires former FDA Senior Reviewer as VP of Regulatory Affairs",
+      "content": "Dr. Elena Vance, previously a lead oncology reviewer at the FDA, has joined the executive leadership team at LyraGen, effective immediately.",
+      "source": "STAT News",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 7800000,
+      "headline": "Advisory committee meeting for LYR-101 scheduled for late Q4",
+      "content": "The FDA has set a date for the Peripheral and Central Nervous System Drugs Advisory Committee to review LyraGen's data, which is approximately two months later than initial analyst projections.",
       "source": "Bloomberg",
       "sentiment": "negative",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 400000,
-      "headline": "Institutional investor clarifies 13G filing regarding AxonGene holdings",
-      "content": "A major healthcare-focused hedge fund reported an increased position, citing the strength of the orphan drug designation for AX-104.",
-      "source": "SEC Filings",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "low"
-    },
-    {
-      "timestamp": 550000,
-      "headline": "Global coffee prices stabilize after three-month rally",
-      "content": "Favorable weather conditions in Brazil have led to increased export forecasts, cooling down the commodities market for Arabica beans.",
+      "timestamp": 10500000,
+      "headline": "Tech giant announces new flagship smartphone model",
+      "content": "The latest mobile device features a titanium frame and upgraded camera sensors, aiming to capture the holiday market share.",
       "source": "CNBC",
       "sentiment": "neutral",
       "category": "noise",
       "magnitude": "low"
     },
     {
-      "timestamp": 700000,
-      "headline": "Advisory Committee roster for neuro-therapeutics panel finalized",
-      "content": "The FDA published the list of experts for the upcoming panel; the roster includes several prominent statisticians known for strict adherence to primary endpoint significance.",
-      "source": "BioPharma Dive",
+      "timestamp": 13000000,
+      "headline": "Secondary endpoint data for Phase 3 study published in medical journal",
+      "content": "While the primary endpoint for LYR-101 was met, the full peer-reviewed data in the New England Journal of Medicine reveals a higher frequency of Grade 2 liver enzyme elevations in the treatment arm.",
+      "source": "The Lancet",
       "sentiment": "negative",
       "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 850000,
-      "headline": "Popular streaming service announces price hike for premium tier",
-      "content": "Subscribers will see a two-dollar monthly increase as the company looks to offset rising production costs for its original programming.",
+      "timestamp": 15500000,
+      "headline": "National coffee chain adds seasonal pumpkin spice latte to menu",
+      "content": "The annual fall menu update has arrived at stores nationwide, featuring several new pastry items and the returning fan-favorite beverage.",
       "source": "WSJ",
       "sentiment": "neutral",
       "category": "noise",
       "magnitude": "low"
     },
     {
-      "timestamp": 950000,
-      "headline": "European Medicines Agency grants PRIORITY status to AX-104",
-      "content": "The EMA's Committee for Medicinal Products for Human Use has accepted AX-104 into the PRIME program to accelerate the assessment of the therapy.",
-      "source": "Reuters",
+      "timestamp": 18000000,
+      "headline": "Lilly-Grant institutional fund increases position in LyraGen",
+      "content": "A 13F filing reveals that the Lilly-Grant Asset Management fund has increased its stake in LyraGen by 15%, now holding 4.2% of the company's outstanding shares.",
+      "source": "SEC Filings",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 1050000,
-      "headline": "New study suggests moderate exercise improves sleep quality",
-      "content": "A long-term study of 5,000 adults shows that 30 minutes of daily walking increases the duration of deep sleep cycles.",
-      "source": "Health Day",
-      "sentiment": "neutral",
-      "category": "noise",
-      "magnitude": "low"
-    },
-    {
-      "timestamp": 1100000,
-      "headline": "FDA updates Prescription Drug User Fee Act date for AX-104",
-      "content": "The agency confirmed the review remains on its original timeline, indicating no request for additional clinical trials or major amendments to the data package.",
+      "timestamp": 20000000,
+      "headline": "FDA issues Briefing Documents ahead of upcoming panel review",
+      "content": "The FDA's internal review documents for LYR-101 describe the efficacy results as 'robust' and suggest that the observed liver enzyme elevations may be manageable through routine monitoring.",
       "source": "Bloomberg",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 1150000,
-      "headline": "AxonGene updates supply chain infrastructure timeline",
-      "content": "Internal adjustments to the cold-chain distribution network suggest that full commercial availability could be shifted by one fiscal quarter.",
-      "source": "Stat News",
-      "sentiment": "negative",
-      "category": "material",
-      "magnitude": "medium"
-    },
-    {
-      "timestamp": 1200000,
-      "headline": "FDA grants marketing authorization for AX-104 therapy",
-      "content": "The Food and Drug Administration has approved AX-104 for the treatment of rare neurodegenerative conditions, making it the first gene therapy in its class.",
-      "source": "WSJ",
+      "timestamp": 21600000,
+      "headline": "Final Advisory Committee vote concludes on LYR-101",
+      "content": "The FDA Advisory Committee has voted 12-2 in favor of recommending approval for LyraGen's LYR-101, citing a high unmet medical need for Z-Alpha Syndrome.",
+      "source": "Reuters",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "high"
     }
   ],
   "groundTruth": {
-    "narrative": "The stock price of AxonGene Biotics fluctuates as investors weigh clinical risks against regulatory milestones. The initial optimism from a clean manufacturing audit is tempered by safety concerns and a skeptical advisory panel. However, international validation and a clean FDA review timeline build momentum leading up to the final approval of its lead drug candidate, AX-104.",
+    "narrative": "LyraGen Therapeutics begins with positive momentum following their FDA filing and a key strategic hire. Sentiment dips as investors react to a delayed review timeline and safety concerns regarding liver enzymes in the full Phase 3 data. However, the stock recovers strongly as institutional buying signal confidence, followed by very favorable FDA briefing documents that lead to a successful positive vote from the advisory committee.",
     "keyMoments": [
       {
         "timestamp": 0,
-        "description": "Clean manufacturing audit reduces regulatory risk.",
+        "description": "NDA submission provides initial positive catalyst.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 250000,
-        "description": "Safety concerns regarding liver enzymes emerge in extension data.",
+        "timestamp": 7800000,
+        "description": "Regulatory delay causes market uncertainty.",
         "expectedPriceDirection": "down"
       },
       {
-        "timestamp": 700000,
-        "description": "The appointment of a strict advisory panel creates fear of rejection.",
+        "timestamp": 13000000,
+        "description": "Safety concerns in peer-reviewed data lead to a sharp sell-off.",
         "expectedPriceDirection": "down"
       },
       {
-        "timestamp": 1100000,
-        "description": "FDA confirms no additional trials needed, signaling a likely approval.",
+        "timestamp": 20000000,
+        "description": "Favorable FDA briefing documents signal likely approval.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 1200000,
-        "description": "Official FDA approval for AX-104 is granted.",
+        "timestamp": 21600000,
+        "description": "Successful AdCom vote results in major price surge.",
         "expectedPriceDirection": "up"
       }
     ]

@@ -1,119 +1,119 @@
 {
-  "id": "storyline-1768031404522",
-  "durationMs": 1200000,
+  "id": "storyline-1768034552987",
+  "durationMs": 21600000,
   "theme": "mid-cap oil exploration company",
-  "companyName": "Borealis Energy Resources",
-  "companyDescription": "Borealis Energy is an independent mid-cap firm specializing in high-stakes deep-water drilling operations in the North Sea and newly acquired offshore blocks in the Guyana-Suriname Basin.",
+  "companyName": "Meridian Basin Energy",
+  "companyDescription": "Meridian Basin Energy is a mid-cap independent operator focused on deep-water exploration in the Gulf of Mexico and unconventional shale plays in the Permian Basin.",
   "initialPrice": 42.5,
   "events": [
     {
-      "timestamp": 15000,
-      "headline": "City council approves expansion of downtown bike lanes",
-      "content": "The municipal planning committee has voted in favor of adding five miles of dedicated cycling infrastructure to the central business district.",
-      "source": "Local Daily",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 125000,
-      "headline": "Borealis Energy adjusts seismic surveying schedule for Guyana block",
-      "content": "The company announced a recalibration of its exploration timeline following technical adjustments to its proprietary seismic imaging software.",
+      "timestamp": 0,
+      "headline": "Meridian Basin confirms mobilization of deep-water rig to Block 7",
+      "content": "The company has finalized the arrival of the 'Apex Explorer' to its primary exploration block, signaling the start of its high-impact drilling campaign.",
       "source": "Reuters",
-      "sentiment": "negative",
+      "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 250000,
-      "headline": "Regional tourism board reports record summer visitor numbers",
-      "content": "Tourism statistics for the past quarter show a 12% increase in international arrivals compared to the previous year.",
-      "source": "Travel News Network",
+      "timestamp": 2700000,
+      "headline": "Regional chamber of commerce hosts annual luncheon",
+      "content": "Local business leaders gathered today to discuss regional economic development and tourism initiatives for the upcoming fiscal year.",
+      "source": "Local News Daily",
       "sentiment": "neutral",
-      "category": "noise"
+      "category": "noise",
+      "magnitude": "low"
     },
     {
-      "timestamp": 375000,
-      "headline": "Regulatory body updates safety compliance requirements for deep-water rigs",
-      "content": "New guidelines issued this morning mandate enhanced secondary blowout preventer testing for all operators in the Atlantic margin.",
+      "timestamp": 5400000,
+      "headline": "Bureau of Safety and Environmental Enforcement requests supplemental casing logs",
+      "content": "Regulators have asked Meridian Basin to provide additional technical documentation regarding the integrity of the primary wellbore in Block 7.",
       "source": "Bloomberg",
       "sentiment": "negative",
       "category": "material",
       "magnitude": "medium"
     },
     {
-      "timestamp": 500000,
-      "headline": "Minority shareholder group requests audit of operational expenditures",
-      "content": "An activist investor holding a 3% stake has formally petitioned for an independent review of recent capital allocations in South American projects.",
+      "timestamp": 8100000,
+      "headline": "National park service reports record visitor numbers for summer season",
+      "content": "Attendance figures for national parks across the country have surpassed previous records, driven by a surge in domestic travel.",
+      "source": "Associated Press",
+      "sentiment": "neutral",
+      "category": "noise",
+      "magnitude": "low"
+    },
+    {
+      "timestamp": 10800000,
+      "headline": "Technical survey identifies stratigraphic correlation with adjacent Tier 1 field",
+      "content": "A new geological assessment suggests that the Meridian-7 well is tapping into the same geological formation as a neighboring high-output discovery.",
+      "source": "Energy Intelligence",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "high"
+    },
+    {
+      "timestamp": 13500000,
+      "headline": "Supply chain constraints delay arrival of secondary pressure valves",
+      "content": "Logistical bottlenecks in the logistics corridor have resulted in a two-week delay for critical infrastructure components required for completion.",
       "source": "WSJ",
       "sentiment": "negative",
       "category": "material",
-      "magnitude": "high"
+      "magnitude": "medium"
     },
     {
-      "timestamp": 625000,
-      "headline": "Local high school robotics team wins national championship",
-      "content": "The 'Gearheads' from North Central High took home the first-place trophy at the annual robotics competition in Las Vegas.",
-      "source": "The Daily Herald",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 750000,
-      "headline": "Borealis Energy internal report notes 'unprecedented' flow rates in secondary wellbore",
-      "content": "Preliminary telemetry from the 'Aurora-1' exploratory well indicates pressure levels significantly higher than the regional average.",
-      "source": "Oil & Gas Journal",
-      "sentiment": "positive",
-      "category": "material",
-      "magnitude": "high"
-    },
-    {
-      "timestamp": 875000,
-      "headline": "Tech conference highlights advances in local agricultural software",
-      "content": "Industry leaders gathered today to discuss how artificial intelligence is improving crop yield forecasting for small-scale farmers.",
-      "source": "TechWire",
-      "sentiment": "neutral",
-      "category": "noise"
-    },
-    {
-      "timestamp": 1000000,
-      "headline": "Independent auditor confirms Guyana block reserves exceed initial estimates",
-      "content": "A third-party verification study suggests the recoverable hydrocarbons in the South American block are 40% higher than internal projections.",
+      "timestamp": 16200000,
+      "headline": "International logistics firm expands cargo fleet",
+      "content": "A major global shipping provider has announced the purchase of fifteen new freight aircraft to handle increased e-commerce volume.",
       "source": "CNBC",
+      "sentiment": "neutral",
+      "category": "noise",
+      "magnitude": "low"
+    },
+    {
+      "timestamp": 18900000,
+      "headline": "Flow test results from Block 7 show sustained high-pressure stabilized rates",
+      "content": "Initial production testing has yielded flow rates that significantly exceed the company's internal baseline estimates for the prospect.",
+      "source": "Reuters",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "high"
     },
     {
-      "timestamp": 1150000,
-      "headline": "Global major energy producer seeks data sharing agreement for South American operations",
-      "content": "Market rumors suggest a Tier-1 integrated oil company has initiated talks for a strategic technical partnership with Borealis regarding their offshore assets.",
-      "source": "Financial Times",
+      "timestamp": 21600000,
+      "headline": "Consortium partner exercises 20% back-in right for Meridian projects",
+      "content": "A strategic equity partner has moved to increase its working interest in the Block 7 project following the successful evaluation phase.",
+      "source": "Bloomberg",
       "sentiment": "positive",
       "category": "material",
       "magnitude": "medium"
     }
   ],
   "groundTruth": {
-    "narrative": "Borealis Energy initially faced a period of uncertainty characterized by technical delays and rising regulatory costs, exacerbated by an activist investor challenge. However, the narrative shifted dramatically when exploratory drilling revealed massive, higher-than-expected reserves in their South American block. This discovery not only validated their strategy but positioned them as a prime target for a strategic partnership or acquisition by a larger industry player.",
+    "narrative": "Meridian Basin Energy's exploration campaign in Block 7 followed a volatile but ultimately successful arc. Initial optimism from rig mobilization was tempered by regulatory requests for casing data and logistical delays in equipment delivery. However, geological similarities to proven fields were confirmed, culminating in a breakthrough flow test that beat expectations and triggered a partner to increase their stake.",
     "keyMoments": [
       {
-        "timestamp": 125000,
-        "description": "Seismic survey delays introduce initial market skepticism regarding project efficiency.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 500000,
-        "description": "The shareholder audit request creates internal friction and signals potential financial mismanagement.",
-        "expectedPriceDirection": "down"
-      },
-      {
-        "timestamp": 750000,
-        "description": "Unprecedented flow rates from the new wellbore provide the first concrete evidence of a major discovery.",
+        "timestamp": 0,
+        "description": "The start of drilling in Block 7 created initial bullish momentum.",
         "expectedPriceDirection": "up"
       },
       {
-        "timestamp": 1000000,
-        "description": "Confirmation of massive reserves by independent auditors significantly increases the company's net asset value.",
+        "timestamp": 5400000,
+        "description": "Regulatory scrutiny over casing logs introduced fear of technical failure or project suspension.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 10800000,
+        "description": "Comparison to Tier 1 fields validated the asset's potential value.",
+        "expectedPriceDirection": "up"
+      },
+      {
+        "timestamp": 13500000,
+        "description": "Supply chain delays for valves raised concerns about capital expenditure overruns.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 18900000,
+        "description": "Exceptional flow test results provided concrete evidence of a major oil discovery.",
         "expectedPriceDirection": "up"
       }
     ]

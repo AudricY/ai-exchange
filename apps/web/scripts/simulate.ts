@@ -52,44 +52,44 @@ function createConfig(duration: number, seed: number): SessionConfig {
     tickSize: 1,
     initialPrice: 100,
     agents: [
-      // Liquidity provider
+      // Liquidity provider (tighter spread, smaller size)
       {
         id: 'mm-1',
         name: 'Market Maker 1',
         archetype: 'market_maker',
-        params: { spread: 2, orderSize: 50 },
+        params: { spread: 1, orderSize: 25 },
       },
-      // Random activity
+      // Random activity (adjusted for 1s tick interval)
       {
         id: 'noise-1',
         name: 'Noise Trader 1',
         archetype: 'noise',
-        params: { orderProbability: 0.3, priceRange: 5, orderSize: 10 },
+        params: { orderProbability: 0.08, priceRange: 2, orderSize: 10 },
       },
       {
         id: 'noise-2',
         name: 'Noise Trader 2',
         archetype: 'noise',
-        params: { orderProbability: 0.25, priceRange: 3, orderSize: 15 },
+        params: { orderProbability: 0.06, priceRange: 2, orderSize: 15 },
       },
       {
         id: 'noise-3',
         name: 'Noise Trader 3',
         archetype: 'noise',
-        params: { orderProbability: 0.2, priceRange: 4, orderSize: 12 },
+        params: { orderProbability: 0.05, priceRange: 2, orderSize: 12 },
       },
-      // Trend followers (with trailing anchor for trend-following)
+      // Trend followers (conservative for 20-min sessions)
       {
         id: 'momentum-1',
         name: 'Momentum Trader 1',
         archetype: 'momentum',
         params: {
-          lookbackPeriod: 10,
-          threshold: 0.02,
-          orderSize: 20,
-          maxPosition: 150,
-          anchorDecay: 0.03,
-          maxDeviation: 1.0,
+          lookbackPeriod: 50,
+          threshold: 0.05,
+          orderSize: 10,
+          maxPosition: 50,
+          anchorDecay: 0.01,
+          maxDeviation: 0.10,
         },
       },
       {
@@ -97,33 +97,33 @@ function createConfig(duration: number, seed: number): SessionConfig {
         name: 'Momentum Trader 2',
         archetype: 'momentum',
         params: {
-          lookbackPeriod: 20,
-          threshold: 0.03,
-          orderSize: 15,
-          maxPosition: 100,
-          anchorDecay: 0.05,
-          maxDeviation: 1.0,
+          lookbackPeriod: 100,
+          threshold: 0.08,
+          orderSize: 8,
+          maxPosition: 40,
+          anchorDecay: 0.01,
+          maxDeviation: 0.10,
         },
       },
-      // Instant news reaction (HFT-like)
+      // News reaction (moderate)
       {
         id: 'informed-1',
         name: 'Informed Trader',
         archetype: 'informed',
-        params: { orderSize: 100, reactionStrength: 1.0, maxPosition: 400 },
+        params: { orderSize: 30, reactionStrength: 0.3, maxPosition: 100 },
       },
-      // Fair value anchors (react with lag, fair value drifts for trends)
+      // Fair value anchors (slow drift)
       {
         id: 'fundamentals-1',
         name: 'Quick Analyst',
         archetype: 'fundamentals',
         params: {
-          reactionLagMs: 3000,
-          deviationThreshold: 0.03,
-          orderSize: 40,
-          maxPosition: 200,
-          driftPerTick: 0.0002,
-          volatilityPerTick: 0.0003,
+          reactionLagMs: 5000,
+          deviationThreshold: 0.05,
+          orderSize: 15,
+          maxPosition: 80,
+          driftPerTick: 0.00005,
+          volatilityPerTick: 0.00008,
         },
       },
       {
@@ -131,12 +131,12 @@ function createConfig(duration: number, seed: number): SessionConfig {
         name: 'Deep Value Investor',
         archetype: 'fundamentals',
         params: {
-          reactionLagMs: 8000,
-          deviationThreshold: 0.05,
-          orderSize: 80,
-          maxPosition: 400,
-          driftPerTick: 0.00015,
-          volatilityPerTick: 0.00025,
+          reactionLagMs: 10000,
+          deviationThreshold: 0.08,
+          orderSize: 20,
+          maxPosition: 100,
+          driftPerTick: 0.00003,
+          volatilityPerTick: 0.00005,
         },
       },
     ],
@@ -221,6 +221,7 @@ async function main() {
       sessionId,
       config,
       storyline,
+      tickInterval: 1000, // 1 second ticks for faster simulation
     });
 
     await runner.run();

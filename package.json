@@ -6,7 +6,11 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "test": "turbo test"
+    "test": "turbo test",
+    "simulate": "cd apps/web && pnpm tsx scripts/simulate.ts",
+    "investigate": "cd apps/web && pnpm tsx scripts/investigate.ts",
+    "sessions": "cd apps/web && pnpm tsx scripts/list-sessions.ts",
+    "session": "cd apps/web && pnpm tsx scripts/show-session.ts"
   },
   "keywords": [],
   "author": "",

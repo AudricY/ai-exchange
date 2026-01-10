@@ -12,12 +12,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-900 text-gray-100 min-h-screen">
-        <nav className="border-b border-gray-700 px-6 py-4">
+    <html lang="en" className="dark">
+      <body className="min-h-screen">
+        <nav className="border-b border-border px-6 py-4">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">AI Exchange</h1>
-            <span className="text-gray-400">Market Black Box Agent</span>
+            <span className="text-muted-foreground">Market Black Box Agent</span>
           </div>
         </nav>
         <main className="p-6">{children}</main>

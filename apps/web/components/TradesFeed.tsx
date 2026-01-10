@@ -1,6 +1,8 @@
 'use client';
 
 import type { TapeEvent, TradeEvent } from '@ai-exchange/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TradesFeedProps {
   events: TapeEvent[];
@@ -14,43 +16,50 @@ export function TradesFeed({ events, maxItems = 20 }: TradesFeedProps) {
     .reverse();
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-semibold mb-3">Recent Trades</h3>
-
-      {trades.length === 0 ? (
-        <div className="text-gray-400 text-center py-4">No trades yet</div>
-      ) : (
-        <div className="space-y-1 max-h-64 overflow-y-auto">
-          <div className="flex text-xs text-gray-400 pb-1 border-b border-gray-700">
-            <span className="flex-1">Price</span>
-            <span className="w-16 text-right">Qty</span>
-            <span className="w-20 text-right">Time</span>
-          </div>
-          {trades.map((trade) => (
-            <div
-              key={trade.id}
-              className="flex text-sm items-center"
-            >
-              <span
-                className={`flex-1 ${
-                  trade.trade.makerSide === 'sell'
-                    ? 'text-green-400'
-                    : 'text-red-400'
-                }`}
-              >
-                {trade.trade.price.toFixed(2)}
-              </span>
-              <span className="w-16 text-right">
-                {trade.trade.quantity}
-              </span>
-              <span className="w-20 text-right text-gray-400">
-                {formatTime(trade.timestamp)}
-              </span>
+    <Card>
+      <CardHeader className="pb-0">
+        <CardTitle>Recent Trades</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {trades.length === 0 ? (
+          <div className="text-muted-foreground text-center py-4">No trades yet</div>
+        ) : (
+          <div className="space-y-1">
+            <div className="flex text-xs text-muted-foreground pb-1 border-b border-border">
+              <span className="flex-1">Price</span>
+              <span className="w-16 text-right">Qty</span>
+              <span className="w-20 text-right">Time</span>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+            <ScrollArea className="h-64">
+              <div className="space-y-1">
+                {trades.map((trade) => (
+                  <div
+                    key={trade.id}
+                    className="flex text-sm items-center"
+                  >
+                    <span
+                      className={`flex-1 ${
+                        trade.trade.makerSide === 'sell'
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                      }`}
+                    >
+                      {trade.trade.price.toFixed(2)}
+                    </span>
+                    <span className="w-16 text-right">
+                      {trade.trade.quantity}
+                    </span>
+                    <span className="w-20 text-right text-muted-foreground">
+                      {formatTime(trade.timestamp)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

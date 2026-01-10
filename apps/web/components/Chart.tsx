@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { createChart, IChartApi, ISeriesApi, CandlestickSeries } from 'lightweight-charts';
 import type { OHLCVBar } from '@ai-exchange/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ChartProps {
   data: OHLCVBar[];
@@ -75,14 +76,18 @@ export function Chart({ data, currentTime, height = 400 }: ChartProps) {
   }, [data]);
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-semibold mb-3">Price Chart</h3>
-      <div ref={containerRef} className="w-full" />
-      {data.length === 0 && (
-        <div className="h-[400px] flex items-center justify-center text-gray-400">
-          No chart data available
-        </div>
-      )}
-    </div>
+    <Card>
+      <CardHeader className="pb-0">
+        <CardTitle>Price Chart</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div ref={containerRef} className="w-full" />
+        {data.length === 0 && (
+          <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+            No chart data available
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

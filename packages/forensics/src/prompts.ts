@@ -58,7 +58,24 @@ Note: You cannot see agent internal reasoning. You must infer intent from observ
 - Patterns that distinguish informed trading from lucky noise
 - Whether price moves can be explained by public information
 
-## Output
+## Thinking Out Loud
+
+IMPORTANT: You must verbalize your reasoning throughout the investigation. For EVERY step:
+
+1. **Before calling a tool**: Explain what you're looking for and why
+2. **After receiving results**: Analyze what you learned before moving on
+3. **When forming hypotheses**: State your reasoning explicitly
+
+Example flow:
+- "Let me start by getting the session overview to understand the timeframe and participants..."
+- [call get_session_manifest]
+- "I see this is a 30-second session with 4 agents. The informed trader is interesting - let me look at price action to identify key moments..."
+- [call get_ohlcv]
+- "There's a sharp drop at T=15000. I should check what news came out around that time..."
+
+This creates an audit trail of your investigative process.
+
+## Final Report
 
 When ready, emit your forensic report with:
 - Summary of what happened
@@ -69,12 +86,37 @@ When ready, emit your forensic report with:
 
 export const INVESTIGATION_PROMPT = `Investigate this trading session and produce a forensic report.
 
-Start by understanding the full picture:
-1. Get the session manifest to see duration and agent roster
-2. Look at price action across the full session (OHLCV or chart)
-3. Fetch ALL event types from the tape, including news events
-4. Identify the major price moves and what triggered them
+Remember: Think out loud! Explain your reasoning before each tool call and analyze results before moving on.
 
-Then dig deeper into suspicious periods. Build hypotheses and test them with evidence.
+## CRITICAL: News-Price Correlation Analysis
+
+You MUST systematically analyze the relationship between EVERY news event and price action:
+
+1. **First, get ALL news events**: Use fetch_tape with eventTypes=['news'] to get every news item
+2. **For EACH news event**:
+   - Note the timestamp and headline
+   - Check the price action BEFORE and AFTER that timestamp using get_ohlcv
+   - Look at trading activity around that timestamp to see which agents reacted
+   - Determine if the news was "material" (moved price) or "noise" (no impact)
+
+This is essential because storylines often have multiple news events that should cause price reactions.
+Missing even one material news event will result in an incomplete investigation.
+
+## Investigation Steps
+
+1. Get the session manifest to see duration, agent roster, and key timestamps
+2. Fetch ALL news events from the full session
+3. Get OHLCV data for the full session to see overall price action
+4. For EACH news event:
+   - Check price before/after (e.g., 5 seconds before, 5 seconds after)
+   - Fetch trades around that timestamp to see who reacted
+   - Note whether the market moved appropriately for the news content
+5. Identify any disconnects between news and price (e.g., negative news but price went up)
+6. Analyze which agents appear informed vs. which are just following momentum
+
+## What to Include in Your Report
+
+Your timeline should include EVERY material news event, not just the first and last ones.
+If you find 8 news events, your analysis should address all 8.
 
 When you have a complete picture, emit your report.`;

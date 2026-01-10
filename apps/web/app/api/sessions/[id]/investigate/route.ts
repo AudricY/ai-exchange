@@ -54,17 +54,35 @@ export async function POST(
               let stepData: unknown = step;
 
               // Truncate large tool results for SSE streaming
+              // but preserve image data for chart rendering
               if (step.type === 'tool_result' && step.result) {
-                const serialized = JSON.stringify(step.result);
-                if (serialized.length > 10000) {
+                const result = step.result as Record<string, unknown>;
+                const hasImage = typeof result.image === 'string' &&
+                                 result.image.length > 100 &&
+                                 (result.mimeType === 'image/png' || result.mimeType === 'image/jpeg');
+
+                if (hasImage) {
+                  // Preserve image data, only send essential fields
                   stepData = {
                     ...step,
                     result: {
-                      _truncated: true,
-                      _originalLength: serialized.length,
-                      _preview: serialized.slice(0, 2000) + '...',
+                      image: result.image,
+                      mimeType: result.mimeType,
+                      barCount: result.barCount,
                     },
                   };
+                } else {
+                  const serialized = JSON.stringify(step.result);
+                  if (serialized.length > 10000) {
+                    stepData = {
+                      ...step,
+                      result: {
+                        _truncated: true,
+                        _originalLength: serialized.length,
+                        _preview: serialized.slice(0, 2000) + '...',
+                      },
+                    };
+                  }
                 }
               }
 

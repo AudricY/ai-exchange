@@ -2,33 +2,32 @@ import type { OrderRequest, NewsEvent, AgentConfig } from '@ai-exchange/types';
 import { BaseAgent, MarketState, AgentAction } from './base-agent.js';
 
 /**
- * Informed trader - reacts to news events
+ * Informed trader - reacts to news events with position management
  * Trades aggressively on positive/negative news
+ * Manages position by flattening on contrary news
  */
 export class InformedTrader extends BaseAgent {
-  private orderSize: number;
+  private baseOrderSize: number;
   private reactionStrength: number;
   private processedNewsIds: Set<string> = new Set();
-  private cooldown: number = 0;
-  private cooldownPeriod: number;
+  private maxPosition: number;
+  private entryPrice: number | null = null;
 
   constructor(config: AgentConfig, rng: () => number) {
     super(config, rng);
-    this.orderSize = (config.params.orderSize as number) ?? 100;
+    this.baseOrderSize = (config.params.orderSize as number) ?? 100;
     this.reactionStrength = (config.params.reactionStrength as number) ?? 1.0;
-    this.cooldownPeriod = (config.params.cooldownPeriod as number) ?? 3;
+    this.maxPosition = (config.params.maxPosition as number) ?? 500;
   }
 
   tick(timestamp: number, state: MarketState): AgentAction[] {
     const actions: AgentAction[] = [];
+    const position = state.position ?? 0;
+    const currentPrice = state.midPrice ?? state.lastTradePrice;
 
-    // Decrement cooldown
-    if (this.cooldown > 0) {
-      this.cooldown--;
-      return actions;
-    }
+    if (currentPrice === null) return actions;
 
-    // Look for new news to react to
+    // Process ALL new news events (not just one)
     for (const news of state.recentNews) {
       // Skip already processed news
       if (this.processedNewsIds.has(news.id)) continue;
@@ -37,36 +36,60 @@ export class InformedTrader extends BaseAgent {
       // Skip news without sentiment (forensics tape) or neutral news
       if (!news.sentiment || news.sentiment === 'neutral') continue;
 
-      const currentPrice = state.midPrice ?? state.lastTradePrice;
-      if (currentPrice === null) continue;
+      const isPositive = news.sentiment === 'positive';
 
-      // Determine trade direction based on sentiment
-      const side = news.sentiment === 'positive' ? 'buy' : 'sell';
+      // Determine action based on sentiment AND current position
+      let side: 'buy' | 'sell';
+      let size: number;
+      let thought: string;
 
-      // Scale order size by reaction strength
-      const size = Math.round(this.orderSize * this.reactionStrength);
+      if (isPositive) {
+        if (position < 0) {
+          // We're short but news is positive - close short first
+          side = 'buy';
+          size = Math.min(Math.abs(position), this.baseOrderSize * 2);
+          thought = `Covering short on positive news: "${news.headline}"`;
+        } else if (position < this.maxPosition) {
+          // Go long or add to long
+          side = 'buy';
+          size = Math.round(this.baseOrderSize * this.reactionStrength);
+          thought = `Buying on positive news: "${news.headline}"`;
+          if (this.entryPrice === null) this.entryPrice = currentPrice;
+        } else {
+          continue; // At max position
+        }
+      } else {
+        // Negative sentiment
+        if (position > 0) {
+          // We're long but news is negative - close long first
+          side = 'sell';
+          size = Math.min(position, this.baseOrderSize * 2);
+          thought = `Closing long on negative news: "${news.headline}"`;
+        } else if (position > -this.maxPosition) {
+          // Go short or add to short
+          side = 'sell';
+          size = Math.round(this.baseOrderSize * this.reactionStrength);
+          thought = `Selling on negative news: "${news.headline}"`;
+          if (this.entryPrice === null) this.entryPrice = currentPrice;
+        } else {
+          continue; // At max position
+        }
+      }
 
-      // Use aggressive limit order slightly through the market
-      const priceAdjust = side === 'buy' ? 0.5 : -0.5;
-      const price = currentPrice + priceAdjust;
-
+      // Use aggressive market order for immediate execution
       const orderRequest: OrderRequest = {
         agentId: this.id,
         side,
-        type: 'limit',
-        price: Math.round(price * 100) / 100,
+        type: 'market',
+        price: currentPrice,
         quantity: size,
       };
 
       actions.push({
         type: 'place_order',
         orderRequest,
-        thought: `Reacting to ${news.sentiment} news: "${news.headline}"`,
+        thought,
       });
-
-      // Enter cooldown after reacting
-      this.cooldown = this.cooldownPeriod;
-      break; // Only react to one news item per tick
     }
 
     return actions;

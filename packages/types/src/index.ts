@@ -60,3 +60,11 @@ export type {
 
 // OHLCV types
 export type { OHLCVBar } from './ohlcv.js';
+
+// Storyline types
+export type {
+  StorylineEvent,
+  KeyMoment,
+  GroundTruth,
+  Storyline,
+} from './storyline.js';

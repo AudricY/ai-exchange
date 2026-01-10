@@ -109,23 +109,38 @@ async function main() {
         const elapsed = Date.now() - startTime;
         const prefix = `[Step ${stepCount}] [${elapsed}ms]`;
 
-        // Store step for detailed log
-        steps.push({
-          step: stepCount,
-          timestamp: elapsed,
-          type: step.type,
-          name: step.name,
-          content: step.content,
-        });
-
+        // Store step for detailed log based on type
         if (step.type === 'tool_call') {
+          const inputPreview = JSON.stringify(step.input).slice(0, 100);
+          steps.push({
+            step: stepCount,
+            timestamp: elapsed,
+            type: step.type,
+            name: step.name,
+            content: inputPreview,
+          });
           log(`${prefix} Tool: ${step.name}`);
-          log(`        ${step.content}`);
-        } else if (step.type === 'text') {
-          log(`${prefix} Thought:`);
+          log(`        Input: ${inputPreview}...`);
+        } else if (step.type === 'tool_result') {
+          const resultPreview = JSON.stringify(step.result).slice(0, 100);
+          steps.push({
+            step: stepCount,
+            timestamp: elapsed,
+            type: step.type,
+            name: step.name,
+            content: resultPreview,
+          });
+          log(`${prefix} Result: ${step.name}`);
+          log(`        ${resultPreview}...`);
+        } else if (step.type === 'thinking') {
+          steps.push({
+            step: stepCount,
+            timestamp: elapsed,
+            type: step.type,
+            content: step.content,
+          });
+          log(`${prefix} Thinking:`);
           log(`        ${step.content.slice(0, 200)}${step.content.length > 200 ? '...' : ''}`);
-        } else if (step.type === 'thought') {
-          log(`${prefix} ${step.content}`);
         }
         log('');
       },

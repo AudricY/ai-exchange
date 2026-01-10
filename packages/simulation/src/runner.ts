@@ -6,6 +6,7 @@ import type {
   NewsEvent,
   TapeEvent,
   OHLCVBar,
+  Storyline,
 } from '@ai-exchange/types';
 import { MatchingEngine } from '@ai-exchange/exchange';
 import {
@@ -30,6 +31,7 @@ import {
 export interface SimulationRunnerOptions {
   sessionId: string;
   config: SessionConfig;
+  storyline?: Storyline;
   dataDir?: string;
   tickInterval?: number;
   snapshotInterval?: number;
@@ -107,17 +109,35 @@ export class SimulationRunner {
     // Initialize agents
     this.initializeAgents();
 
-    // Queue up news events
-    this.newsQueue = this.config.newsSchedule.map((item) => ({
-      timestamp: item.timestamp,
-      news: {
-        headline: item.headline,
-        content: item.content,
-        sentiment: item.sentiment,
-        source: item.source,
+    // Queue up news events - from storyline if provided, otherwise from config
+    if (options.storyline) {
+      // Use storyline events (includes sentiment for informed agents)
+      this.newsQueue = options.storyline.events.map((event) => ({
+        timestamp: event.timestamp,
+        news: {
+          headline: event.headline,
+          content: event.content,
+          sentiment: event.sentiment,
+          source: event.source,
+          timestamp: event.timestamp,
+        },
+      }));
+      // Override config from storyline
+      this.config.initialPrice = options.storyline.initialPrice;
+      this.config.durationMs = options.storyline.durationMs;
+    } else {
+      // Use config news schedule
+      this.newsQueue = this.config.newsSchedule.map((item) => ({
         timestamp: item.timestamp,
-      },
-    }));
+        news: {
+          headline: item.headline,
+          content: item.content,
+          sentiment: item.sentiment,
+          source: item.source,
+          timestamp: item.timestamp,
+        },
+      }));
+    }
     this.newsQueue.sort((a, b) => a.timestamp - b.timestamp);
   }
 
@@ -269,7 +289,9 @@ export class SimulationRunner {
   private processScheduledNews(timestamp: number): void {
     while (this.newsQueue.length > 0 && this.newsQueue[0].timestamp <= timestamp) {
       const item = this.newsQueue.shift()!;
-      const newsEvent: Omit<NewsEvent, 'id' | 'sequence'> = {
+
+      // Full news for internal use (informed agents see sentiment)
+      const fullNews: Omit<NewsEvent, 'id' | 'sequence'> = {
         sessionId: this.sessionId,
         type: 'news',
         timestamp,
@@ -279,9 +301,20 @@ export class SimulationRunner {
         source: item.news.source,
       };
 
-      const eventId = this.tape.write(newsEvent);
+      // Write to tape WITHOUT sentiment (forensics can't see it)
+      const tapeNews = {
+        sessionId: this.sessionId,
+        type: 'news' as const,
+        timestamp,
+        headline: item.news.headline,
+        content: item.news.content,
+        source: item.news.source,
+        // NO sentiment field - forensics must infer from price action
+      };
+
+      const eventId = this.tape.write(tapeNews);
       const fullEvent: NewsEvent = {
-        ...newsEvent,
+        ...fullNews,
         id: eventId,
         sequence: this.tape.getSequence(),
       };

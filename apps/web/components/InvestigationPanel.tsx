@@ -9,12 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ActivityFeed, type InvestigationStep } from './investigation/ActivityFeed';
 
+export type InvestigationServerStatus = 'idle' | 'running' | 'completed' | 'failed';
+
 interface InvestigationPanelProps {
   sessionId: string;
   report: ForensicsReport | null;
   isInvestigating: boolean;
   steps: InvestigationStep[];
   onStartInvestigation: () => void;
+  serverStatus?: InvestigationServerStatus;
+  startedAt?: string | null;
 }
 
 export function InvestigationPanel({
@@ -23,8 +27,13 @@ export function InvestigationPanel({
   isInvestigating,
   steps,
   onStartInvestigation,
+  serverStatus = 'idle',
+  startedAt,
 }: InvestigationPanelProps) {
   const [activeTab, setActiveTab] = useState<'activity' | 'report'>('activity');
+
+  // Determine if investigation is running elsewhere (server says running but we're not the one running it)
+  const runningElsewhere = serverStatus === 'running' && !isInvestigating;
 
   // Calculate stats for display
   const toolCallCount = steps.filter((s) => s.type === 'tool_call').length;
@@ -38,7 +47,7 @@ export function InvestigationPanel({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             Forensic Investigation
-            {isInvestigating && (
+            {(isInvestigating || runningElsewhere) && (
               <div className="animate-spin h-4 w-4 border-2 border-purple-400 border-t-transparent rounded-full" />
             )}
           </CardTitle>
@@ -74,7 +83,7 @@ export function InvestigationPanel({
       </CardHeader>
 
       <CardContent className="flex-1 min-h-0">
-        {!report && !isInvestigating && steps.length === 0 && (
+        {!report && !isInvestigating && steps.length === 0 && !runningElsewhere && (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">
               Run the Gemini forensics agent to analyze this market session.
@@ -85,6 +94,26 @@ export function InvestigationPanel({
             >
               Start Investigation
             </Button>
+          </div>
+        )}
+
+        {runningElsewhere && (
+          <div className="text-center py-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="animate-spin h-5 w-5 border-2 border-purple-400 border-t-transparent rounded-full" />
+              <span className="text-purple-400 font-medium">Investigation in Progress</span>
+            </div>
+            <p className="text-muted-foreground text-sm mb-2">
+              An investigation is already running for this session.
+            </p>
+            {startedAt && (
+              <p className="text-muted-foreground text-xs">
+                Started at {new Date(startedAt).toLocaleTimeString()}
+              </p>
+            )}
+            <p className="text-muted-foreground text-xs mt-4">
+              Refresh the page to check for updates.
+            </p>
           </div>
         )}
 

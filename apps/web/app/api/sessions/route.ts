@@ -66,11 +66,12 @@ export async function GET() {
     const reportStatuses = getReportStatuses(sessionIds);
 
     const sessionsWithReportStatus = sessions.map((session) => {
-      const status = reportStatuses.get(session.id);
+      const reportInfo = reportStatuses.get(session.id);
       return {
         ...session,
-        hasReport: !!status,
-        reportGeneratedAt: status?.generatedAt,
+        hasReport: !!reportInfo?.generatedAt,
+        reportGeneratedAt: reportInfo?.generatedAt,
+        investigationStatus: reportInfo?.status ?? 'idle',
       };
     });
 

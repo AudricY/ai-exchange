@@ -1,0 +1,125 @@
+{
+  "id": "storyline-1768026360799",
+  "durationMs": 30000,
+  "theme": "mid-cap oil exploration company",
+  "companyName": "Frontier Energy Inc.",
+  "companyDescription": "Frontier Energy Inc. is a mid-sized oil exploration and production company focused on developing unconventional oil reserves in the Permian Basin. They have a reputation for aggressive expansion and high-risk, high-reward projects.",
+  "initialPrice": 35.5,
+  "events": [
+    {
+      "timestamp": 1000,
+      "headline": "Frontier Energy Announces Acquisition of Beta Oil's Permian Basin Assets",
+      "content": "Frontier Energy Inc. (FEI) today announced the acquisition of Beta Oil's Permian Basin assets for $500 million. The acquisition includes several promising exploration leases and existing production infrastructure. Funding details will be disclosed in the upcoming earnings call.",
+      "source": "Bloomberg",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 4000,
+      "headline": "Local High School Wins State Championship",
+      "content": "The local high school football team, the Wildcats, secured their first state championship in over a decade, defeating their rivals in a thrilling final game.",
+      "source": "Local News",
+      "sentiment": "neutral",
+      "category": "noise"
+    },
+    {
+      "timestamp": 7000,
+      "headline": "Frontier Energy: CFO to present at Energy Investors Conference Next Week",
+      "content": "Frontier Energy's CFO, Sarah Jenkins, will be presenting at the Energy Investors Conference next week in Houston, Texas. The presentation will focus on the company's growth strategy and recent acquisitions.",
+      "source": "Reuters",
+      "sentiment": "neutral",
+      "category": "material"
+    },
+    {
+      "timestamp": 10000,
+      "headline": "EPA Announces Increased Scrutiny of Water Usage in Fracking Operations",
+      "content": "The Environmental Protection Agency (EPA) announced today that it will be increasing its scrutiny of water usage in fracking operations across the country, citing concerns about potential environmental impacts. New regulations may be introduced next quarter.",
+      "source": "WSJ",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 13000,
+      "headline": "Crude Oil Prices See Slight Dip Amid Global Supply Concerns",
+      "content": "Crude oil prices experienced a slight dip today, as concerns mount regarding global supply and demand dynamics. Analysts are closely monitoring geopolitical tensions and their potential impact on production.",
+      "source": "CNBC",
+      "sentiment": "neutral",
+      "category": "noise"
+    },
+    {
+      "timestamp": 16000,
+      "headline": "Frontier Energy Announces Successful Test Well Results in Newly Acquired Acreage",
+      "content": "Frontier Energy Inc. (FEI) today announced successful test well results in its newly acquired acreage from Beta Oil. The initial flow rates exceeded expectations, indicating significant potential for future production.",
+      "source": "Press Release",
+      "sentiment": "positive",
+      "category": "material",
+      "magnitude": "high"
+    },
+    {
+      "timestamp": 19000,
+      "headline": "Annual Charity Gala Raises Record Funds for Local Hospital",
+      "content": "The annual charity gala raised a record-breaking amount of funds for the local hospital, supporting vital community healthcare initiatives.",
+      "source": "Local News",
+      "sentiment": "neutral",
+      "category": "noise"
+    },
+    {
+      "timestamp": 22000,
+      "headline": "Analyst Downgrades Frontier Energy Citing Debt Concerns",
+      "content": "A leading financial analyst from Goldman Sachs downgraded Frontier Energy's stock rating from 'Buy' to 'Hold,' citing concerns about the company's increasing debt levels following the recent Beta Oil acquisition. The analyst believes Frontier's financial leverage could limit its ability to weather potential downturns in oil prices.",
+      "source": "MarketWatch",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "medium"
+    },
+    {
+      "timestamp": 25000,
+      "headline": "Frontier Energy Announces Secondary Offering to Reduce Debt",
+      "content": "Frontier Energy Inc. (FEI) announced today its intention to conduct a secondary offering of 20 million shares to raise capital and reduce debt. The offering is expected to be priced at a discount to the current market price.",
+      "source": "SEC Filing",
+      "sentiment": "negative",
+      "category": "material",
+      "magnitude": "high"
+    },
+    {
+      "timestamp": 28000,
+      "headline": "Celebrity Chef Opens New Restaurant Downtown",
+      "content": "Renowned celebrity chef, Marcus Dubois, has officially opened the doors to his new flagship restaurant downtown, promising a unique dining experience.",
+      "source": "Local Magazine",
+      "sentiment": "neutral",
+      "category": "noise"
+    }
+  ],
+  "groundTruth": {
+    "narrative": "Frontier Energy, an aggressive mid-cap oil company, acquires assets from Beta Oil, initially buoying the stock. Successful test well results further boost confidence. However, increased EPA scrutiny and an analyst downgrade due to debt concerns cast a shadow. The company's secondary offering to reduce debt, while necessary, ultimately hurts investor sentiment and lowers the stock price.",
+    "keyMoments": [
+      {
+        "timestamp": 1000,
+        "description": "Acquisition of Beta Oil's Permian Basin Assets.",
+        "expectedPriceDirection": "up"
+      },
+      {
+        "timestamp": 10000,
+        "description": "EPA Announces Increased Scrutiny of Water Usage in Fracking Operations.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 16000,
+        "description": "Frontier Energy Announces Successful Test Well Results.",
+        "expectedPriceDirection": "up"
+      },
+      {
+        "timestamp": 22000,
+        "description": "Analyst Downgrades Frontier Energy Citing Debt Concerns.",
+        "expectedPriceDirection": "down"
+      },
+      {
+        "timestamp": 25000,
+        "description": "Frontier Energy Announces Secondary Offering to Reduce Debt.",
+        "expectedPriceDirection": "down"
+      }
+    ]
+  }
+}

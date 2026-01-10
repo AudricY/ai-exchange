@@ -34,8 +34,8 @@ export class InformedTrader extends BaseAgent {
       if (this.processedNewsIds.has(news.id)) continue;
       this.processedNewsIds.add(news.id);
 
-      // Skip neutral news
-      if (news.sentiment === 'neutral') continue;
+      // Skip news without sentiment (forensics tape) or neutral news
+      if (!news.sentiment || news.sentiment === 'neutral') continue;
 
       const currentPrice = state.midPrice ?? state.lastTradePrice;
       if (currentPrice === null) continue;

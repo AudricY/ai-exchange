@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getSession, getReport } from '@ai-exchange/db';
+import {
+  getSession,
+  getReport,
+  getInvestigationStatus,
+  setInvestigationStatus,
+} from '@ai-exchange/db';
 import { investigate, type InvestigationStep } from '@ai-exchange/forensics';
 
 export async function POST(
@@ -27,11 +32,23 @@ export async function POST(
       return NextResponse.json({ report: existingReport });
     }
 
+    // Check if investigation is already running (lock mechanism)
+    const currentStatus = getInvestigationStatus(id);
+    if (currentStatus?.status === 'running') {
+      return NextResponse.json({
+        status: 'already_running',
+        startedAt: currentStatus.startedAt,
+      });
+    }
+
+    // Set status to running before starting
+    setInvestigationStatus(id, 'running');
+
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const report = await investigate({
+          const result = await investigate({
             sessionId: id,
             onStep: (step: InvestigationStep) => {
               let stepData: unknown = step;
@@ -56,12 +73,17 @@ export async function POST(
             },
           });
 
-          if (report) {
-            const data = JSON.stringify({ type: 'report', report });
+          // Set status to completed
+          setInvestigationStatus(id, 'completed');
+
+          if (result.report) {
+            const data = JSON.stringify({ type: 'report', report: result.report });
             controller.enqueue(encoder.encode(`data: ${data}\n\n`));
           }
         } catch (error) {
           console.error('Investigation error:', error);
+          // Set status to failed
+          setInvestigationStatus(id, 'failed');
           const data = JSON.stringify({
             type: 'error',
             content: 'Investigation failed',
@@ -97,11 +119,25 @@ export async function GET(
 
   try {
     const report = getReport(id);
-    if (!report) {
-      return NextResponse.json({ error: 'No report found' }, { status: 404 });
+    const statusInfo = getInvestigationStatus(id);
+    const status = statusInfo?.status ?? 'idle';
+
+    if (report) {
+      return NextResponse.json({ report, status: 'completed' });
     }
 
-    return NextResponse.json({ report });
+    if (status === 'running') {
+      return NextResponse.json({
+        status: 'running',
+        startedAt: statusInfo?.startedAt,
+      });
+    }
+
+    if (status === 'failed') {
+      return NextResponse.json({ status: 'failed' });
+    }
+
+    return NextResponse.json({ status: 'idle' });
   } catch (error) {
     console.error('Failed to get report:', error);
     return NextResponse.json(

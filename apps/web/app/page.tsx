@@ -8,9 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { InvestigationBadge } from '@/components/InvestigationBadge';
 
+type InvestigationStatus = 'idle' | 'running' | 'completed' | 'failed';
+
 interface SessionWithReport extends Session {
   hasReport: boolean;
   reportGeneratedAt?: string;
+  investigationStatus: InvestigationStatus;
 }
 
 export default function HomePage() {
@@ -65,7 +68,7 @@ export default function HomePage() {
                     <div className="flex items-center gap-3">
                       <StatusBadge status={session.status} />
                       <InvestigationBadge
-                        hasReport={session.hasReport}
+                        status={session.investigationStatus}
                         generatedAt={session.reportGeneratedAt}
                       />
                       {session.status === 'completed' && (

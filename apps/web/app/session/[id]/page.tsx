@@ -13,7 +13,7 @@ import { Chart } from '@/components/Chart';
 import { OrderBook } from '@/components/OrderBook';
 import { TradesFeed } from '@/components/TradesFeed';
 import { ReplayScrubber } from '@/components/ReplayScrubber';
-import { InvestigationPanel } from '@/components/InvestigationPanel';
+import { InvestigationPanel, type InvestigationServerStatus } from '@/components/InvestigationPanel';
 import { type InvestigationStep } from '@/components/investigation/ActivityFeed';
 import { NewsFeed } from '@/components/NewsFeed';
 import { OrderFeed } from '@/components/OrderFeed';

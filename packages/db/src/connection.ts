@@ -86,6 +86,14 @@ CREATE TABLE IF NOT EXISTS reports (
   generated_at TEXT NOT NULL,
   FOREIGN KEY (session_id) REFERENCES sessions(id)
 );
+
+-- Investigation status tracking
+CREATE TABLE IF NOT EXISTS investigation_status (
+  session_id TEXT PRIMARY KEY,
+  status TEXT NOT NULL DEFAULT 'idle',
+  started_at TEXT,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
 `;
 
 export function getDb(dbPath?: string): Database.Database {

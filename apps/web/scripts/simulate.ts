@@ -1,19 +1,21 @@
 #!/usr/bin/env tsx
 /**
  * CLI script to run a market simulation
- * Usage: pnpm simulate [--name "Session Name"] [--duration 60000] [--seed 12345]
+ * Usage: pnpm simulate [--name "Session Name"] [--duration 60000] [--seed 12345] [--storyline path]
  */
 
+import * as fs from 'fs';
 import { createSession, getSession, closeDb } from '@ai-exchange/db';
 import { SimulationRunner } from '@ai-exchange/simulation';
-import type { SessionConfig } from '@ai-exchange/types';
+import type { SessionConfig, Storyline } from '@ai-exchange/types';
 
 // Parse CLI arguments
-function parseArgs(): { name: string; duration: number; seed: number } {
+function parseArgs(): { name: string; duration: number; seed: number; storylinePath: string | null } {
   const args = process.argv.slice(2);
   let name = `CLI Session ${new Date().toISOString().slice(0, 19)}`;
   let duration = 60000;
   let seed = Date.now();
+  let storylinePath: string | null = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--name' && args[i + 1]) {
@@ -22,6 +24,8 @@ function parseArgs(): { name: string; duration: number; seed: number } {
       duration = parseInt(args[++i], 10);
     } else if (args[i] === '--seed' && args[i + 1]) {
       seed = parseInt(args[++i], 10);
+    } else if (args[i] === '--storyline' && args[i + 1]) {
+      storylinePath = args[++i];
     } else if (args[i] === '--help' || args[i] === '-h') {
       console.log(`
 Usage: pnpm simulate [options]
@@ -30,13 +34,14 @@ Options:
   --name <name>       Session name (default: "CLI Session <timestamp>")
   --duration <ms>     Simulation duration in ms (default: 60000)
   --seed <number>     Random seed for reproducibility (default: current timestamp)
+  --storyline <path>  Path to storyline JSON file (overrides duration/price/news)
   --help, -h          Show this help message
 `);
       process.exit(0);
     }
   }
 
-  return { name, duration, seed };
+  return { name, duration, seed, storylinePath };
 }
 
 // Default session config
@@ -99,25 +104,57 @@ function createConfig(duration: number, seed: number): SessionConfig {
 }
 
 async function main() {
-  const { name, duration, seed } = parseArgs();
+  const { name, duration, seed, storylinePath } = parseArgs();
   const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  const config = createConfig(duration, seed);
+
+  // Load storyline if provided
+  let storyline: Storyline | undefined;
+  if (storylinePath) {
+    try {
+      const content = fs.readFileSync(storylinePath, 'utf-8');
+      storyline = JSON.parse(content) as Storyline;
+    } catch (error) {
+      console.error(`Failed to load storyline from ${storylinePath}:`, error);
+      process.exit(1);
+    }
+  }
+
+  // Create config (storyline will override some values in runner)
+  const config = createConfig(
+    storyline?.durationMs ?? duration,
+    seed
+  );
+
+  // If storyline, use its initial price
+  if (storyline) {
+    config.initialPrice = storyline.initialPrice;
+    config.newsSchedule = []; // Will be populated from storyline in runner
+  }
+
+  const effectiveDuration = storyline?.durationMs ?? duration;
+  const effectiveName = storyline ? `${storyline.companyName} - ${name}` : name;
 
   console.log('='.repeat(60));
   console.log('Market Simulation');
   console.log('='.repeat(60));
   console.log(`Session ID: ${sessionId}`);
-  console.log(`Name: ${name}`);
-  console.log(`Duration: ${duration}ms`);
+  console.log(`Name: ${effectiveName}`);
+  if (storyline) {
+    console.log(`Storyline: ${storylinePath}`);
+    console.log(`Company: ${storyline.companyName}`);
+    console.log(`Theme: ${storyline.theme}`);
+  }
+  console.log(`Duration: ${effectiveDuration}ms`);
   console.log(`Seed: ${seed}`);
+  console.log(`Initial Price: $${config.initialPrice}`);
   console.log(`Agents: ${config.agents.length}`);
-  console.log(`News Events: ${config.newsSchedule.length}`);
+  console.log(`News Events: ${storyline?.events.length ?? config.newsSchedule.length}`);
   console.log('='.repeat(60));
 
   try {
     // Create session in database
     console.log('\nCreating session...');
-    createSession(sessionId, name, config);
+    createSession(sessionId, effectiveName, config);
 
     // Run simulation
     console.log('Starting simulation...');
@@ -126,6 +163,7 @@ async function main() {
     const runner = new SimulationRunner({
       sessionId,
       config,
+      storyline,
     });
 
     await runner.run();

@@ -15,19 +15,24 @@ function isNewsLikeEvent(e: TapeEvent): e is NewsLikeEvent {
   return e.type === 'news' || e.type === 'rumor' || e.type === 'doc_inject';
 }
 
-function getSentimentVariant(sentiment: 'positive' | 'negative' | 'neutral') {
+function getSentimentVariant(sentiment: 'positive' | 'negative' | 'neutral' | undefined) {
   switch (sentiment) {
     case 'positive':
       return 'default';
     case 'negative':
       return 'destructive';
     case 'neutral':
+    default:
       return 'secondary';
   }
 }
 
-function getSentimentClass(sentiment: 'positive' | 'negative' | 'neutral') {
+function getSentimentClass(sentiment: 'positive' | 'negative' | 'neutral' | undefined) {
   return sentiment === 'positive' ? 'bg-green-600' : '';
+}
+
+function getSentimentLabel(sentiment: 'positive' | 'negative' | 'neutral' | undefined) {
+  return sentiment ?? 'news';
 }
 
 export function NewsFeed({ events, maxItems = 30 }: NewsFeedProps) {
@@ -54,7 +59,7 @@ export function NewsFeed({ events, maxItems = 30 }: NewsFeedProps) {
                     variant={getSentimentVariant(event.sentiment)}
                     className={getSentimentClass(event.sentiment)}
                   >
-                    {event.sentiment}
+                    {getSentimentLabel(event.sentiment)}
                   </Badge>
                   <span className="text-muted-foreground text-xs">{event.source}</span>
                   <span className="text-muted-foreground text-xs ml-auto">

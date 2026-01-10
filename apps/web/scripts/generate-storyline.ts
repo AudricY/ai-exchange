@@ -4,6 +4,7 @@
  * Usage: pnpm tsx scripts/generate-storyline.ts --theme "oil company" [--duration 60000] [--chaos 0.3] [--output path]
  */
 
+import 'dotenv/config';
 import { google } from '@ai-sdk/google';
 import { generateObject } from 'ai';
 import { z } from 'zod';

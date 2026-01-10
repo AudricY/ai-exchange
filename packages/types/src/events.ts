@@ -44,7 +44,8 @@ export interface NewsEvent extends BaseTapeEvent {
   type: 'news';
   headline: string;
   content: string;
-  sentiment: 'positive' | 'negative' | 'neutral';
+  /** Sentiment is optional in tape (hidden from forensics) but present internally for informed agents */
+  sentiment?: 'positive' | 'negative' | 'neutral';
   source: string;
 }
 

@@ -1,38 +1,67 @@
 #!/usr/bin/env tsx
 /**
  * CLI script to run forensics investigation on a session
- * Usage: pnpm investigate <sessionId>
+ * Usage: pnpm investigate <sessionId> [options]
  */
 
-import { investigate, type InvestigationStep } from '@ai-exchange/forensics';
+import { investigate, type InvestigationStep, type InvestigationResult } from '@ai-exchange/forensics';
 import { getSession, getReport, closeDb } from '@ai-exchange/db';
 import { mkdirSync, appendFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-function parseArgs(): { sessionId: string } {
+interface ParsedArgs {
+  sessionId: string;
+  maxSteps?: number;
+  adaptive: boolean;
+}
+
+function parseArgs(): ParsedArgs {
   const args = process.argv.slice(2);
 
   if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
     console.log(`
-Usage: pnpm investigate <sessionId>
+Usage: pnpm investigate <sessionId> [options]
 
 Arguments:
   sessionId    The session ID to investigate
 
+Options:
+  --max-steps <n>    Maximum total steps (default: 200)
+  --adaptive         Allow agent to request extended investigation (default: true)
+  --no-adaptive      Disable adaptive depth - use fixed step limit
+
 Environment:
   GOOGLE_GENERATIVE_AI_API_KEY    Required for Gemini API access
 
-Example:
-  pnpm investigate session-1234567890-abc123def
+Examples:
+  pnpm investigate session-123456
+  pnpm investigate session-123456 --max-steps 100
+  pnpm investigate session-123456 --no-adaptive
 `);
     process.exit(args.length === 0 ? 1 : 0);
   }
 
-  return { sessionId: args[0] };
+  const result: ParsedArgs = {
+    sessionId: args[0],
+    adaptive: true,
+  };
+
+  for (let i = 1; i < args.length; i++) {
+    if (args[i] === '--max-steps' && args[i + 1]) {
+      result.maxSteps = parseInt(args[i + 1], 10);
+      i++;
+    } else if (args[i] === '--adaptive') {
+      result.adaptive = true;
+    } else if (args[i] === '--no-adaptive') {
+      result.adaptive = false;
+    }
+  }
+
+  return result;
 }
 
 async function main() {
-  const { sessionId } = parseArgs();
+  const { sessionId, maxSteps, adaptive } = parseArgs();
 
   // Check for API key
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
@@ -65,12 +94,14 @@ async function main() {
   };
 
   log('='.repeat(60));
-  log('Forensics Investigation');
+  log('Forensics Investigation (Enhanced)');
   log('='.repeat(60));
   log(`Session ID: ${sessionId}`);
   log(`Name: ${session.name}`);
   log(`Events: ${session.eventCount}`);
   log(`Trades: ${session.tradeCount}`);
+  log(`Adaptive depth: ${adaptive ? 'enabled' : 'disabled'}`);
+  log(`Max steps: ${maxSteps || 200}`);
   log(`Log file: ${logFile}`);
   log('='.repeat(60));
   log('\nStarting investigation...\n');
@@ -80,8 +111,11 @@ async function main() {
   const steps: Array<{ step: number; timestamp: number; type: string; name?: string; content: string }> = [];
 
   try {
-    const report = await investigate({
+    const result: InvestigationResult = await investigate({
       sessionId,
+      initialMaxSteps: 25,
+      maxTotalSteps: maxSteps || 200,
+      allowExtension: adaptive,
       onStep: (step: InvestigationStep) => {
         stepCount++;
         const elapsed = Date.now() - startTime;
@@ -109,14 +143,23 @@ async function main() {
       },
     });
 
-    const elapsed = Date.now() - startTime;
-
     log('='.repeat(60));
     log('Investigation Complete');
     log('='.repeat(60));
-    log(`Steps: ${stepCount}`);
-    log(`Time: ${elapsed}ms`);
+    log(`Steps: ${result.stepCount}`);
+    log(`Time: ${result.elapsedMs}ms`);
+    log(`Extensions requested: ${result.extensionsRequested}`);
     log('');
+
+    // Token usage section
+    log('TOKEN USAGE');
+    log('-'.repeat(60));
+    log(`Prompt tokens:     ${result.usage.promptTokens.toLocaleString()}`);
+    log(`Completion tokens: ${result.usage.completionTokens.toLocaleString()}`);
+    log(`Total tokens:      ${result.usage.totalTokens.toLocaleString()}`);
+    log('');
+
+    const report = result.report;
 
     if (report) {
       log('SUMMARY');
@@ -156,14 +199,16 @@ async function main() {
       log(report.conclusion);
       log('');
 
-      // Write detailed JSON log with full step contents
+      // Write detailed JSON log with full step contents and token usage
       const detailedLogFile = logFile.replace('.log', '-detailed.json');
       writeFileSync(detailedLogFile, JSON.stringify({
         sessionId,
         startedAt: new Date(startTime).toISOString(),
         completedAt: new Date().toISOString(),
-        elapsedMs: elapsed,
-        stepCount,
+        elapsedMs: result.elapsedMs,
+        stepCount: result.stepCount,
+        extensionsRequested: result.extensionsRequested,
+        tokenUsage: result.usage,
         steps,
         report,
       }, null, 2));

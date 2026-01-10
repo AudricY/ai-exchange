@@ -19,6 +19,8 @@
     "@ai-exchange/db": "workspace:*",
     "@ai-sdk/google": "^3.0.6",
     "ai": "^6.0.26",
+    "chart.js": "^4.4.0",
+    "chartjs-node-canvas": "^4.1.6",
     "zod": "^3.25.3"
   },
   "devDependencies": {

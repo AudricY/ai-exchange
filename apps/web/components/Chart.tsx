@@ -61,10 +61,15 @@ export function Chart({ data, currentTime, height = 400 }: ChartProps) {
     };
   }, [height]);
 
-  // Update data when it changes
+  // Update data when it changes or currentTime changes
   useEffect(() => {
     if (seriesRef.current && data.length > 0) {
-      const chartData = data.map((bar) => ({
+      // Filter bars to only show up to currentTime
+      const visibleData = currentTime !== undefined
+        ? data.filter((bar) => bar.intervalStart <= currentTime)
+        : data;
+
+      const chartData = visibleData.map((bar) => ({
         time: bar.intervalStart / 1000 as unknown as import('lightweight-charts').Time,
         open: bar.open,
         high: bar.high,
@@ -73,7 +78,7 @@ export function Chart({ data, currentTime, height = 400 }: ChartProps) {
       }));
       seriesRef.current.setData(chartData);
     }
-  }, [data]);
+  }, [data, currentTime]);
 
   return (
     <Card>

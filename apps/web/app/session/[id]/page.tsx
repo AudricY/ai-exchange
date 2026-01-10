@@ -20,6 +20,13 @@ import { OrderFeed } from '@/components/OrderFeed';
 import { AgentThoughts } from '@/components/AgentThoughts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function SessionPage({
   params,
@@ -46,6 +53,7 @@ export default function SessionPage({
 
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [resolution, setResolution] = useState(5000);
 
   // Fetch session data
   useEffect(() => {
@@ -126,15 +134,22 @@ export default function SessionPage({
     }
   }
 
-  async function fetchOHLCV() {
+  async function fetchOHLCV(res: number = resolution) {
     try {
-      const res = await fetch(`/api/sessions/${id}/ohlcv?resolution=1000`);
-      const data = await res.json();
+      const response = await fetch(`/api/sessions/${id}/ohlcv?resolution=${res}`);
+      const data = await response.json();
       setOhlcv(data.bars || []);
     } catch (error) {
       console.error('Failed to fetch OHLCV:', error);
     }
   }
+
+  // Refetch OHLCV when resolution changes
+  useEffect(() => {
+    if (session?.status === 'completed') {
+      fetchOHLCV(resolution);
+    }
+  }, [resolution]);
 
   async function fetchEvents() {
     try {
@@ -324,7 +339,26 @@ export default function SessionPage({
             />
 
             {/* Chart - full width */}
-            <Chart data={ohlcv} currentTime={currentTime} />
+            <div className="space-y-2">
+              <div className="flex justify-end">
+                <Select
+                  value={resolution.toString()}
+                  onValueChange={(v) => setResolution(parseInt(v))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1000">1s</SelectItem>
+                    <SelectItem value="5000">5s</SelectItem>
+                    <SelectItem value="10000">10s</SelectItem>
+                    <SelectItem value="30000">30s</SelectItem>
+                    <SelectItem value="60000">1m</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Chart data={ohlcv} currentTime={currentTime} />
+            </div>
 
             {/* Data panels row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

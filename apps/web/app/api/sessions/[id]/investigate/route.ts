@@ -52,18 +52,17 @@ export async function POST(
               // but preserve image data for chart rendering
               if (step.type === 'tool_result' && step.result) {
                 const result = step.result as Record<string, unknown>;
-                const hasImage = typeof result.image === 'string' &&
-                                 result.image.length > 100 &&
-                                 (result.mimeType === 'image/png' || result.mimeType === 'image/jpeg');
 
-                if (hasImage) {
-                  // Preserve image data, only send essential fields
+                // Handle imageBuffer from render_chart tool - convert to base64
+                if (result.imageBuffer && Buffer.isBuffer(result.imageBuffer)) {
+                  const base64Image = (result.imageBuffer as Buffer).toString('base64');
                   stepData = {
                     ...step,
                     result: {
-                      image: result.image,
-                      mimeType: result.mimeType,
+                      image: base64Image,
+                      mimeType: 'image/png',
                       barCount: result.barCount,
+                      priceRange: result.priceRange,
                     },
                   };
                 } else {

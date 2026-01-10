@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight, Loader2, Check } from 'lucide-react';
 
@@ -90,8 +90,16 @@ function getImageFromResult(result: unknown): { image: string; mimeType: string 
 }
 
 export function ToolCallCard({ toolCall, toolResult }: ToolCallCardProps) {
+  const imageData = toolResult ? getImageFromResult(toolResult.result) : null;
   const [expanded, setExpanded] = useState(false);
   const isPending = !toolResult;
+
+  // Auto-expand when image result arrives
+  useEffect(() => {
+    if (imageData) {
+      setExpanded(true);
+    }
+  }, [imageData]);
 
   return (
     <div className="border border-blue-500/30 bg-blue-500/5 rounded-lg overflow-hidden">
@@ -133,28 +141,22 @@ export function ToolCallCard({ toolCall, toolResult }: ToolCallCardProps) {
           {toolResult && (
             <div>
               <div className="text-xs font-medium text-muted-foreground mb-1">Result</div>
-              {(() => {
-                const imageData = getImageFromResult(toolResult.result);
-                if (imageData) {
-                  return (
-                    <div className="space-y-2">
-                      <img
-                        src={`data:${imageData.mimeType};base64,${imageData.image}`}
-                        alt="Chart visualization"
-                        className="max-w-full rounded border border-border"
-                      />
-                      <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto">
-                        {formatResultPreview(toolResult.result)}
-                      </pre>
-                    </div>
-                  );
-                }
-                return (
+              {imageData ? (
+                <div className="space-y-2">
+                  <img
+                    src={`data:${imageData.mimeType};base64,${imageData.image}`}
+                    alt="Chart visualization"
+                    className="max-w-full rounded border border-border"
+                  />
                   <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto">
                     {formatResultPreview(toolResult.result)}
                   </pre>
-                );
-              })()}
+                </div>
+              ) : (
+                <pre className="text-xs bg-background/50 p-2 rounded overflow-x-auto">
+                  {formatResultPreview(toolResult.result)}
+                </pre>
+              )}
             </div>
           )}
 

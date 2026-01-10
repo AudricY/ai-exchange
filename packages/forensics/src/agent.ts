@@ -123,25 +123,59 @@ export async function investigate(
   extensionRequest = null;
 
   let remainingSteps = initialMaxSteps;
-  let conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+  let stepsUsedThisRound = 0;
+
+  // Track tools used across all rounds for continuation prompts
+  const toolsUsedSet = new Set<string>();
+  let roundNumber = 0;
 
   try {
-    while (remainingSteps > 0 && totalStepCount < maxTotalSteps) {
+    while (totalStepCount < maxTotalSteps) {
+      roundNumber++;
+      stepsUsedThisRound = 0;
       const currentMaxSteps = Math.min(remainingSteps, maxTotalSteps - totalStepCount);
+
+      // Build the prompt for this round
+      let userPrompt: string;
+      if (roundNumber === 1) {
+        userPrompt = `${INVESTIGATION_PROMPT}\n\nSession ID: ${sessionId}`;
+      } else {
+        // Continue with guidance based on progress
+        const missingTools = [];
+        if (!toolsUsedSet.has('emit_report')) {
+          if (!toolsUsedSet.has('get_session_manifest')) missingTools.push('get_session_manifest');
+          if (!toolsUsedSet.has('detect_patterns')) missingTools.push('detect_patterns');
+          if (!toolsUsedSet.has('render_chart')) missingTools.push('render_chart (multiple times)');
+          if (!toolsUsedSet.has('get_agent_thoughts')) missingTools.push('get_agent_thoughts (for each agent)');
+          if (!toolsUsedSet.has('analyze_agent_correlation')) missingTools.push('analyze_agent_correlation');
+        }
+
+        if (missingTools.length > 0) {
+          userPrompt = `CONTINUE YOUR INVESTIGATION. This is round ${roundNumber}. You have ${currentMaxSteps} more steps available (${totalStepCount} steps used so far, max ${maxTotalSteps}).
+
+You still need to use these tools: ${missingTools.join(', ')}.
+
+CRITICAL: DO NOT emit_report until you have used ALL required tools. Keep investigating!
+
+Session ID: ${sessionId}`;
+        } else {
+          userPrompt = `CONTINUE YOUR INVESTIGATION. This is round ${roundNumber}. You have ${currentMaxSteps} more steps available.
+
+You have used all required tools. Now emit your final report using emit_report.
+
+Session ID: ${sessionId}`;
+        }
+      }
 
       const result = await generateText({
         model: google('gemini-3-pro-preview'),
         system: SYSTEM_PROMPT,
-        messages: conversationHistory.length > 0
-          ? [
-              ...conversationHistory,
-              { role: 'user' as const, content: 'Continue your investigation.' },
-            ]
-          : [{ role: 'user' as const, content: `${INVESTIGATION_PROMPT}\n\nSession ID: ${sessionId}` }],
+        prompt: userPrompt,
         tools,
         stopWhen: stepCountIs(currentMaxSteps),
         onStepFinish: ({ text, toolCalls }) => {
           totalStepCount++;
+          stepsUsedThisRound++;
 
           if (text && onStep) {
             onStep({ type: 'text', content: text });
@@ -149,6 +183,7 @@ export async function investigate(
 
           if (toolCalls && onStep) {
             for (const call of toolCalls) {
+              toolsUsedSet.add(call.toolName);
               onStep({
                 type: 'tool_call',
                 name: call.toolName,
@@ -162,6 +197,13 @@ export async function investigate(
       // Track token usage
       if (result.usage) {
         allUsages.push(result.usage);
+      }
+
+      // Track tools used from steps (in case onStepFinish missed any)
+      for (const step of result.steps) {
+        for (const toolCall of step.toolCalls) {
+          toolsUsedSet.add(toolCall.toolName);
+        }
       }
 
       // Extract report from tool results
@@ -181,13 +223,7 @@ export async function investigate(
         break;
       }
 
-      // Update conversation history for continuations
-      if (result.text) {
-        conversationHistory.push({ role: 'assistant', content: result.text });
-      }
-
       // Check if extension was requested and allowed
-      // Note: extensionRequest is set by the tool callback, TypeScript can't track this
       const currentExtension = extensionRequest as ExtensionRequest | null;
       if (currentExtension !== null && allowExtension) {
         extensionsRequested++;
@@ -206,10 +242,25 @@ export async function investigate(
 
         // Reset for next potential extension
         extensionRequest = null;
-      } else {
-        // No extension requested or not allowed, exit loop
-        break;
+        continue;
       }
+
+      // Decrement remaining steps by what we used this round
+      remainingSteps -= stepsUsedThisRound;
+
+      // If we have more steps and no report yet, continue the loop
+      if (remainingSteps > 0) {
+        if (onStep) {
+          onStep({
+            type: 'thought',
+            content: `Round ${roundNumber} complete. ${stepsUsedThisRound} steps used, ${remainingSteps} steps remaining. Tools used so far: ${Array.from(toolsUsedSet).join(', ')}. Continuing...`,
+          });
+        }
+        continue;
+      }
+
+      // Out of steps, exit
+      break;
     }
 
     return {

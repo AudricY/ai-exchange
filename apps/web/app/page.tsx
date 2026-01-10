@@ -6,9 +6,15 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { InvestigationBadge } from '@/components/InvestigationBadge';
+
+interface SessionWithReport extends Session {
+  hasReport: boolean;
+  reportGeneratedAt?: string;
+}
 
 export default function HomePage() {
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<SessionWithReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,6 +64,10 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <StatusBadge status={session.status} />
+                      <InvestigationBadge
+                        hasReport={session.hasReport}
+                        generatedAt={session.reportGeneratedAt}
+                      />
                       {session.status === 'completed' && (
                         <div className="text-sm text-muted-foreground">
                           {session.tradeCount} trades

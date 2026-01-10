@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSession, listSessions } from '@ai-exchange/db';
+import { createSession, listSessions, getReportStatuses } from '@ai-exchange/db';
 import type { SessionConfig } from '@ai-exchange/types';
 
 // Default session config for new sessions
@@ -62,7 +62,19 @@ const DEFAULT_CONFIG: SessionConfig = {
 export async function GET() {
   try {
     const sessions = listSessions();
-    return NextResponse.json({ sessions });
+    const sessionIds = sessions.map((s) => s.id);
+    const reportStatuses = getReportStatuses(sessionIds);
+
+    const sessionsWithReportStatus = sessions.map((session) => {
+      const status = reportStatuses.get(session.id);
+      return {
+        ...session,
+        hasReport: !!status,
+        reportGeneratedAt: status?.generatedAt,
+      };
+    });
+
+    return NextResponse.json({ sessions: sessionsWithReportStatus });
   } catch (error) {
     console.error('Failed to list sessions:', error);
     return NextResponse.json(

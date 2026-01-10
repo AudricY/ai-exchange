@@ -20,4 +20,4 @@ export { insertOHLCV, getOHLCV } from './ohlcv.js';
 
 export { insertSnapshot, getSnapshots, getSnapshotAt } from './snapshots.js';
 
-export { saveReport, getReport } from './reports.js';
+export { saveReport, getReport, listReports, getReportStatuses } from './reports.js';

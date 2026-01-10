@@ -66,8 +66,24 @@ export default function SessionPage({
       fetchOHLCV();
       fetchEvents();
       fetchLatestSnapshot();
+      fetchExistingReport();
     }
   }, [session?.status]);
+
+  // Fetch existing report if available
+  async function fetchExistingReport() {
+    try {
+      const res = await fetch(`/api/sessions/${id}/investigate`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.report) {
+          setReport(data.report);
+        }
+      }
+    } catch {
+      // Silently fail - report just won't be pre-loaded
+    }
+  }
 
   // Playback timer
   useEffect(() => {

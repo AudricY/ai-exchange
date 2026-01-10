@@ -91,15 +91,17 @@ CREATE TABLE IF NOT EXISTS reports (
 export function getDb(dbPath?: string): Database.Database {
   if (db) return db;
 
-  const path = dbPath ?? join(process.cwd(), 'data', 'exchange.db');
+  // Use absolute path to avoid issues with process.cwd()
+  const cwd = process.cwd();
+  const dbFilePath = dbPath ?? `${cwd}/data/exchange.db`;
 
   // Ensure directory exists
-  const dir = dirname(path);
+  const dir = dirname(dbFilePath);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
 
-  db = new Database(path);
+  db = new Database(dbFilePath);
   db.pragma('journal_mode = WAL');
 
   // Run schema

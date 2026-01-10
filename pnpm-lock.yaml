@@ -47,6 +47,9 @@ importers:
       ai:
         specifier: ^4.3.16
         version: 4.3.19(react@19.2.3)(zod@3.25.76)
+      better-sqlite3:
+        specifier: ^11.8.1
+        version: 11.10.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -69,6 +72,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.8
         version: 4.1.18
+      '@types/better-sqlite3':
+        specifier: ^7.6.13
+        version: 7.6.13
       '@types/node':
         specifier: ^22.15.21
         version: 22.19.5

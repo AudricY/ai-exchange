@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     '@ai-exchange/simulation',
     '@ai-exchange/forensics',
   ],
+  serverExternalPackages: ['better-sqlite3'],
 };
 
 export default nextConfig;

@@ -20,6 +20,10 @@ interface PriceLevel {
   orderCount: number;
 }
 
+export interface OrderBookOptions {
+  preventSelfTrade?: boolean; // Default: true
+}
+
 /**
  * Limit Order Book with price-time priority matching
  */
@@ -33,10 +37,12 @@ export class OrderBook {
   private nextOrderId = 1;
   private nextTradeId = 1;
   private tickSize: number;
+  private preventSelfTrade: boolean;
 
-  constructor(sessionId: string, tickSize: number = 1) {
+  constructor(sessionId: string, tickSize: number = 1, options: OrderBookOptions = {}) {
     this.sessionId = sessionId;
     this.tickSize = tickSize;
+    this.preventSelfTrade = options.preventSelfTrade ?? true;
   }
 
   /**
@@ -198,6 +204,13 @@ export class OrderBook {
 
       while (node && order.filledQuantity < order.quantity) {
         const restingOrder = node.order;
+
+        // Self-trade prevention: skip orders from the same agent
+        if (this.preventSelfTrade && restingOrder.agentId === order.agentId) {
+          node = node.next;
+          continue;
+        }
+
         const remainingIncoming = order.quantity - order.filledQuantity;
         const remainingResting =
           restingOrder.quantity - restingOrder.filledQuantity;

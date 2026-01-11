@@ -9,7 +9,7 @@ import type {
   TradeEvent,
   BookSnapshotEvent,
 } from '@ai-exchange/types';
-import { OrderBook } from './order-book.js';
+import { OrderBook, type OrderBookOptions } from './order-book.js';
 
 // Helper type to properly omit from union types
 type OmitFromUnion<T, K extends keyof T> = T extends T ? Omit<T, K> : never;
@@ -27,10 +27,11 @@ export class MatchingEngine {
   constructor(
     sessionId: string,
     tickSize: number = 1,
-    onEvent: TapeEventCallback
+    onEvent: TapeEventCallback,
+    options?: OrderBookOptions
   ) {
     this.sessionId = sessionId;
-    this.orderBook = new OrderBook(sessionId, tickSize);
+    this.orderBook = new OrderBook(sessionId, tickSize, options);
     this.onEvent = onEvent;
   }
 
